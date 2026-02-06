@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's for Dinner? — Rehman & Cristina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Anybody:wght@400;600;800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+  :root {
+    --bg: #0f0d0b;
+    --surface: #1a1714;
+    --surface-raised: #211e1a;
+    --surface-hover: #2a2620;
+    --border: rgba(255,255,255,.06);
+    --border-active: rgba(255,255,255,.12);
+    --text: #f2ede6;
+    --text-dim: #8a8279;
+    --text-muted: #5e574f;
+    --accent: #e07a3a;
+    --accent-dim: rgba(224,122,58,.15);
+    --accent-glow: rgba(224,122,58,.25);
+    --rehman: #5b8dd9;
+    --rehman-bg: rgba(91,141,217,.1);
+    --cristina: #d95ba3;
+    --cristina-bg: rgba(217,91,163,.1);
+    --gold: #f5c842;
+    --gold-bg: rgba(245,200,66,.08);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --ease: cubic-bezier(.4,0,.2,1);
+    --spring: cubic-bezier(.175,.885,.32,1.275);
+  }
+
+  html { scroll-behavior: smooth }
+
+  body {
+    font-family: 'Anybody', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ═══ Grain texture ═══ */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: .025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ═══ Ambient glow ═══ */
+  .ambient {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: .07;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ambient-1 { top: -200px; left: -100px; background: var(--accent); }
+  .ambient-2 { bottom: -200px; right: -100px; background: var(--cristina); }
+
+  /* ═══ Header ═══ */
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 56px 24px 32px;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: .78rem;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    animation: fadeDown .6s var(--ease) both;
+  }
+  .hero-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1 }
+    50% { opacity: .3 }
+  }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 400;
+    letter-spacing: -2px;
+    line-height: 1;
+    color: var(--text);
+    animation: fadeUp .7s var(--ease) .1s both;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-family: 'Caveat', cursive;
+    font-size: 1.4rem;
+    color: var(--text-dim);
+    margin-top: 12px;
+    animation: fadeUp .7s var(--ease) .2s both;
+  }
+
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 28px;
+    animation: fadeUp .7s var(--ease) .3s both;
+  }
+
+  .voter-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: .85rem;
+    font-weight: 600;
+    border: 1.5px solid;
+  }
+  .voter-chip.rehman { border-color: var(--rehman); color: var(--rehman); background: var(--rehman-bg) }
+  .voter-chip.cristina { border-color: var(--cristina); color: var(--cristina); background: var(--cristina-bg) }
+  .voter-chip .count {
+    background: rgba(255,255,255,.1);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: .75rem;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  /* ═══ Grid ═══ */
+  .grid {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 16px auto 0;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  /* ═══ Card ═══ */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform .35s var(--ease), border-color .35s var(--ease), box-shadow .35s var(--ease);
+    cursor: pointer;
+    position: relative;
+    opacity: 0;
+    animation: cardReveal .5s var(--ease) both;
+  }
+  .card:nth-child(1) { animation-delay: .15s }
+  .card:nth-child(2) { animation-delay: .25s }
+  .card:nth-child(3) { animation-delay: .35s }
+  .card:nth-child(4) { animation-delay: .45s }
+  .card:nth-child(5) { animation-delay: .55s }
+
+  @keyframes cardReveal {
+    from { opacity: 0; transform: translateY(24px) }
+    to { opacity: 1; transform: translateY(0) }
+  }
+
+  .card:hover {
+    border-color: var(--border-active);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+
+  .card.matched {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), 0 20px 60px rgba(245,200,66,.1);
+  }
+  .card.matched::before {
+    content: 'MATCH';
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    background: var(--gold);
+    color: var(--bg);
+    font-size: .65rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    animation: popIn .4s var(--spring);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0) }
+    50% { transform: scale(1.2) }
+    to { transform: scale(1) }
+  }
+
+  /* Card image */
+  .card-img-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    background: var(--surface-raised);
+  }
+  .card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .5s var(--ease);
+  }
+  .card:hover .card-img { transform: scale(1.04) }
+
+  .card-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, var(--surface) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Card body */
+  .card-body { padding: 20px 24px }
+
+  .card-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: .72rem;
+    color: var(--text-dim);
+    background: var(--surface-raised);
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+  .pill svg { width: 12px; height: 12px }
+
+  .card h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: -.5px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .card-hook {
+    color: var(--text-dim);
+    font-size: .88rem;
+    margin-bottom: 10px;
+  }
+
+  /* Spice */
+  .spice {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 16px;
+  }
+  .spice span { font-size: .85rem; opacity: .2; transition: opacity .2s }
+  .spice span.on { opacity: 1 }
+
+  /* Voting */
+  .votes {
+    display: flex;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .vote-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 0;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: .82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .25s var(--ease);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .vote-btn:hover { border-color: var(--border-active) }
+  .vote-btn .icon { font-size: 1.1rem; transition: transform .3s var(--spring) }
+
+  .vote-btn.active-rehman {
+    border-color: var(--rehman);
+    background: var(--rehman-bg);
+    color: var(--rehman);
+  }
+  .vote-btn.active-cristina {
+    border-color: var(--cristina);
+    background: var(--cristina-bg);
+    color: var(--cristina);
+  }
+  .vote-btn.active-rehman .icon,
+  .vote-btn.active-cristina .icon { transform: scale(1.3) }
+
+  /* Expand */
+  .card-expand {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .5s var(--ease);
+  }
+  .card.open .card-expand { max-height: 5000px }
+
+  .expand-inner { padding: 0 24px 28px }
+
+  .expand-inner .vibe {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 4px 14px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+
+  .expand-inner p {
+    color: var(--text-dim);
+    font-size: .9rem;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .expand-inner h3 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin: 20px 0 10px;
+    font-weight: 400;
+  }
+  .expand-inner h3:first-of-type { margin-top: 8px }
+
+  .key-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .key-chips span {
+    background: var(--surface-raised);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: .78rem;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .ing-list, .step-list { padding-left: 0; list-style: none }
+
+  .ing-list li {
+    padding: 4px 0;
+    font-size: .88rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .ing-list li::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  .step-list { counter-reset: step }
+  .step-list li {
+    counter-increment: step;
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: .88rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+  .step-list li:last-child { border-bottom: none }
+  .step-list li::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    font-weight: 800;
+    margin-top: 2px;
+  }
+
+  .tip-box {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: var(--surface-raised);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: .85rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .tip-box strong { color: var(--accent) }
+
+  .tap-hint {
+    text-align: center;
+    font-size: .72rem;
+    color: var(--text-muted);
+    padding: 6px 0 2px;
+    opacity: .6;
+    transition: opacity .2s;
+  }
+  .card:hover .tap-hint { opacity: 1 }
+  .card.open .tap-hint { display: none }
+
+  /* ═══ Results FAB ═══ */
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    opacity: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 100px;
+    font-size: .9rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 32px var(--accent-glow);
+    transition: all .4s var(--spring);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fab.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .fab:hover {
+    box-shadow: 0 12px 40px rgba(224,122,58,.35);
+    transform: translateX(-50%) translateY(-2px);
+  }
+  .fab svg { width: 18px; height: 18px }
+
+  /* ═══ Results Panel ═══ */
+  .results {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 48px 20px 100px;
+    text-align: center;
+    display: none;
+    position: relative;
+    z-index: 1;
+  }
+  .results.show {
+    display: block;
+    animation: fadeUp .5s var(--ease);
+  }
+
+  .results h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 6px;
+  }
+  .results .results-sub {
+    color: var(--text-dim);
+    font-size: 1rem;
+    margin-bottom: 28px;
+  }
+
+  .match-banner {
+    background: var(--gold-bg);
+    border: 1px solid rgba(245,200,66,.2);
+    padding: 28px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  .match-banner .dish {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+  }
+  .match-banner button {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 10px 28px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: .88rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .match-banner button:hover { background: #c9682f }
+
+  .no-match {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    border-radius: var(--radius);
+    text-align: left;
+  }
+  .no-match p { margin-bottom: 8px; font-size: .92rem }
+  .no-match strong.r { color: var(--rehman) }
+  .no-match strong.c { color: var(--cristina) }
+  .no-match .picks { color: var(--text-dim) }
+
+  .reset-btn {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    font-size: .8rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .reset-btn:hover { border-color: var(--border-active); color: var(--text) }
+
+  /* ═══ Animations ═══ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px) }
+    to { opacity: 1; transform: translateY(0) }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px) }
+    to { opacity: 1; transform: translateY(0) }
+  }
+
+  /* ═══ Confetti ═══ */
+  .confetti-wrap {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    overflow: hidden;
+  }
+  .confetti-bit {
+    position: absolute;
+    top: -10px;
+    border-radius: 2px;
+    animation: confettiFall 3s ease-out forwards;
+    opacity: 0;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg) }
+    100% { opacity: 0; transform: translateY(110vh) rotate(1080deg) }
+  }
+
+  /* ═══ Responsive ═══ */
+  @media (max-width: 700px) {
+    .grid { grid-template-columns: 1fr; padding: 0 14px }
+    .hero { padding: 40px 16px 24px }
+    .hero h1 { letter-spacing: -1px }
+    .card-body { padding: 16px 18px }
+    .expand-inner { padding: 0 18px 24px }
+    .hero-cta { gap: 12px }
+    .voter-chip { padding: 6px 14px; font-size: .8rem }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<header class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    360g shrimp &middot; ready to cook
+  </div>
+  <h1>What's for <em>dinner?</em></h1>
+  <p class="hero-sub">Pick your favourites. We'll find the match.</p>
+  <div class="hero-cta">
+    <div class="voter-chip rehman">Rehman <span class="count" id="rehmanCount">0</span></div>
+    <div class="voter-chip cristina">Cristina <span class="count" id="cristinaCount">0</span></div>
+  </div>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<button class="fab" id="fab" onclick="showResults()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  See Results
+</button>
+
+<div class="results" id="results"></div>
+
+<div class="confetti-wrap" id="confetti"></div>
+
+<script>
+const recipes = [
+  {
+    id: "coconut-curry",
+    title: "Spicy Coconut Shrimp Curry",
+    origin: "Southeast Asian",
+    cookTime: "30 min",
+    hook: "Rich, creamy, warming \u2014 a hug in a bowl",
+    spice: 3,
+    vibe: "Cozy date night",
+    special: "The coconut milk mellows the heat into something you can\u2019t stop eating.",
+    img: "images/coconut-curry.png",
+    description: "A fragrant, creamy curry where plump shrimp swim in spiced coconut milk with crisp green beans, bell peppers, and mushrooms. The Lao Gan Ma adds a deep chili crunch that plays beautifully against the coconut richness. Served over fluffy basmati with fresh basil torn on top.",
+    keyIngredients: ["Coconut Milk", "Lao Gan Ma", "Bell Pepper", "Green Beans", "Mushrooms", "Basil", "Ginger"],
+    ingredients: [
+      "360g shrimp, peeled and deveined",
+      "1 can coconut milk (400ml)",
+      "1 bell pepper, sliced",
+      "Handful of green beans, trimmed and halved",
+      "6\u20138 mushrooms, sliced",
+      "3 cloves garlic, minced",
+      "Thumb of ginger, grated",
+      "1 small onion, diced",
+      "2 tbsp Lao Gan Ma chili crisp",
+      "1 tbsp soy sauce",
+      "Juice of half a lemon",
+      "1 cup basmati rice",
+      "Fresh basil leaves",
+      "1 tbsp oil"
+    ],
+    steps: [
+      "Start the rice: rinse basmati, cook with 1.5 cups water, lid on, low heat ~15 min.",
+      "Heat oil in a wide pan over medium-high. Saut\u00e9 onion until soft, ~3 min.",
+      "Add garlic and ginger, cook 30 seconds until fragrant.",
+      "Add Lao Gan Ma and stir for another 30 seconds \u2014 let it bloom in the oil.",
+      "Pour in coconut milk, soy sauce, and lemon juice. Stir and bring to a gentle simmer.",
+      "Add green beans and bell pepper. Cook 4\u20135 min until just tender.",
+      "Add mushrooms, cook 2 min more.",
+      "Nestle shrimp into the curry. Cook 2\u20133 min per side until pink and curled.",
+      "Taste and adjust: more soy for salt, more Lao Gan Ma for heat, more lemon for brightness.",
+      "Serve over rice, tear fresh basil on top."
+    ],
+    tips: "Don\u2019t stir the shrimp too much \u2014 let them sear slightly in the curry for better texture. If the sauce gets too thick, splash in a bit of water."
+  },
+  {
+    id: "arrabbiata",
+    title: "Shrimp Arrabbiata with Penne",
+    origin: "Naples, Italy",
+    cookTime: "25 min",
+    hook: "Angry tomatoes, sweet shrimp, al dente penne",
+    spice: 2,
+    vibe: "Italian weeknight feast",
+    special: "The white wine deglazes into a sauce that makes you forget it took 25 minutes.",
+    img: "images/arrabbiata.png",
+    description: "Arrabbiata means \u2018angry\u2019 \u2014 this is a fiery tomato sauce with garlic, chili flakes, and a splash of white wine. The shrimp get seared first for golden edges, then folded back in at the end so they stay tender. Mushrooms add meatiness, and fresh basil finishes it off. Classic, punchy, and deeply satisfying.",
+    keyIngredients: ["Penne", "Canned Tomatoes", "White Wine", "Chili Flakes", "Garlic", "Mushrooms", "Basil"],
+    ingredients: [
+      "360g shrimp, peeled and deveined",
+      "250g penne",
+      "1 can (400g) whole or crushed tomatoes",
+      "4 cloves garlic, thinly sliced",
+      "1 tsp chili flakes (more to taste)",
+      "Splash of white wine (~60ml)",
+      "6\u20138 mushrooms, quartered",
+      "1 small onion, finely diced",
+      "Fresh basil, a generous handful",
+      "2 tbsp olive oil",
+      "Salt and pepper"
+    ],
+    steps: [
+      "Bring a large pot of salted water to boil. Cook penne 1 min short of al dente. Reserve a cup of pasta water.",
+      "While water heats: season shrimp with salt and pepper. Heat 1 tbsp olive oil in a large pan over high heat.",
+      "Sear shrimp 1\u20132 min per side until golden. Remove and set aside \u2014 they\u2019ll finish cooking later.",
+      "Same pan, reduce to medium. Add remaining oil, onion, cook 3 min.",
+      "Add sliced garlic and chili flakes. Cook 1 min \u2014 garlic should sizzle, not brown.",
+      "Deglaze with white wine, scraping up any bits. Let it reduce by half, ~1 min.",
+      "Pour in canned tomatoes. Break them up with a spoon. Season with salt. Simmer 8\u201310 min.",
+      "Add mushrooms into the sauce for the last 4 min of simmering.",
+      "Toss drained penne into the sauce. Add pasta water a splash at a time until it clings.",
+      "Fold shrimp back in. Cook 1 min just to warm through.",
+      "Tear basil over the top. Serve immediately."
+    ],
+    tips: "The pasta water is liquid gold here \u2014 the starch makes the sauce silky and clingy. Don\u2019t skip it. And slice the garlic, don\u2019t mince it \u2014 thin slices give you little pockets of garlic flavor throughout."
+  },
+  {
+    id: "fajitas",
+    title: "Shrimp Fajita Wraps",
+    origin: "Mexican Border Style",
+    cookTime: "20 min",
+    hook: "Smoky, charred, hands-on \u2014 no fork needed",
+    spice: 2,
+    vibe: "Fun and messy",
+    special: "The screaming hot pan gives everything those smoky charred edges that make fajitas fajitas.",
+    img: "images/fajitas.png",
+    description: "Quick, loud, and satisfying. Bell peppers and onions get charred in a ripping hot pan until they\u2019re sweet and smoky. Shrimp go in fast and come out with cumin-kissed, slightly charred edges. Squeeze lemon over everything, pile into warm tortillas, and eat with your hands. This is the one where you\u2019re both standing at the counter building your wraps.",
+    keyIngredients: ["Tortillas", "Bell Pepper", "Onion", "Cumin", "Lemon", "Green Onion"],
+    ingredients: [
+      "360g shrimp, peeled and deveined",
+      "1 large bell pepper, sliced into strips",
+      "1 onion, sliced into half-moons",
+      "3 cloves garlic, minced",
+      "1 tsp ground cumin",
+      "\u00bd tsp black pepper",
+      "\u00bd tsp chili flakes",
+      "Juice of 1 lemon",
+      "4 tortilla wraps",
+      "2 green onions, sliced",
+      "1 tbsp oil",
+      "Salt"
+    ],
+    steps: [
+      "Season shrimp with cumin, black pepper, chili flakes, and a pinch of salt. Toss to coat.",
+      "Get a large pan or skillet screaming hot over high heat. Add a thin layer of oil.",
+      "Add bell pepper and onion in a single layer. Don\u2019t touch them for 2 min \u2014 let them char.",
+      "Toss once, cook another 2 min. They should have black spots and still be slightly crunchy. Remove to a plate.",
+      "Same pan, still screaming hot. Add shrimp in a single layer. Cook 1.5 min per side.",
+      "Squeeze lemon juice over the shrimp while they\u2019re in the pan \u2014 it\u2019ll sizzle and steam. Remove from heat.",
+      "Warm tortillas in the same pan for 15\u201320 seconds per side.",
+      "Build wraps: shrimp, charred peppers and onions, sliced green onion.",
+      "Squeeze extra lemon on top if desired."
+    ],
+    tips: "The key is heat. If your pan isn\u2019t smoking, it\u2019s not hot enough. Don\u2019t crowd the pan \u2014 work in batches if needed. The char is the flavor."
+  },
+  {
+    id: "stir-fry",
+    title: "Spicy Garlic Ginger Shrimp Stir-Fry",
+    origin: "Chinese-Inspired",
+    cookTime: "20 min",
+    hook: "Wok-hot, garlicky, lightning-fast",
+    spice: 3,
+    vibe: "Energetic weeknight",
+    special: "Everything cooks in minutes when your prep is done \u2014 the wok does all the heavy lifting.",
+    img: "images/stir-fry.png",
+    description: "This is a proper stir-fry: everything prepped, pan screaming hot, and it\u2019s done in minutes. Shrimp get wok-seared until they curl and char at the edges. Green beans and mushrooms pick up smoky flavor. The sauce is garlic, ginger, soy, sesame, and Lao Gan Ma \u2014 punchy and aromatic. Over basmati rice, it\u2019s a complete meal.",
+    keyIngredients: ["Soy Sauce", "Sesame Oil", "Lao Gan Ma", "Five Spice", "Green Beans", "Mushrooms", "Ginger"],
+    ingredients: [
+      "360g shrimp, peeled and deveined",
+      "Handful green beans, trimmed and halved",
+      "6\u20138 mushrooms, sliced",
+      "1 bell pepper, sliced",
+      "2 green onions, sliced (whites and greens separated)",
+      "4 cloves garlic, minced",
+      "Thumb of ginger, grated",
+      "2 tbsp soy sauce",
+      "1 tsp sesame oil",
+      "1\u20132 tbsp Lao Gan Ma chili crisp",
+      "\u00bc tsp five spice powder",
+      "Splash of veggie stock or water",
+      "1 cup basmati rice",
+      "1 tbsp oil"
+    ],
+    steps: [
+      "Start rice: rinse basmati, cook with 1.5 cups water, lid on, low heat ~15 min.",
+      "Prep everything before you start cooking \u2014 this goes fast. Have all veg sliced, garlic minced, sauce mixed.",
+      "Mix sauce in a small bowl: soy sauce, sesame oil, Lao Gan Ma, five spice.",
+      "Heat oil in a wok or large pan over high heat until smoking.",
+      "Add shrimp in a single layer. Sear 1.5 min, flip, 1 min more. Remove immediately.",
+      "Same pan: add green onion whites, garlic, and ginger. Stir 20 seconds.",
+      "Add green beans with a splash of stock. Toss and cook 2 min.",
+      "Add mushrooms and bell pepper. Cook 2 min \u2014 everything should still have bite.",
+      "Pour sauce over the vegetables. Toss to coat.",
+      "Return shrimp. Toss everything together for 30 seconds.",
+      "Serve over rice. Top with green onion greens."
+    ],
+    tips: "The single most important thing: have everything prepped before the wok gets hot. Once you start, there\u2019s no time to chop. A splash of stock when adding the green beans creates steam that cooks them fast while keeping them bright green."
+  },
+  {
+    id: "sichuan",
+    title: "Sichuan Dry-Fried Shrimp",
+    origin: "Sichuan, China",
+    cookTime: "25 min",
+    hook: "Crispy, dry, punchy \u2014 no sauce, just heat",
+    spice: 4,
+    vibe: "Bold and adventurous",
+    special: "Dry-frying means no heavy sauce \u2014 every piece of shrimp is crispy, spicy, and intensely flavored.",
+    img: "images/sichuan.png",
+    description: "This is the bold choice. Shrimp get a light cornstarch dust and are fried until the edges are crispy and golden. Green beans and mushrooms are blistered separately in the same hot oil. Then everything gets tossed in a dry Sichuan sauce \u2014 Lao Gan Ma, five spice, soy, sesame, chili flakes, and a tiny pinch of sugar to balance the fire. No saucy puddles. Just crispy, punchy bites over rice.",
+    keyIngredients: ["Cornstarch", "Lao Gan Ma", "Five Spice", "Sesame Oil", "Green Beans", "Mushrooms", "Chili Flakes"],
+    ingredients: [
+      "360g shrimp, peeled and deveined",
+      "Handful green beans, trimmed and halved",
+      "6\u20138 mushrooms, halved",
+      "3 cloves garlic, minced",
+      "Thumb of ginger, grated",
+      "2 green onions, sliced",
+      "2 tbsp Lao Gan Ma chili crisp",
+      "\u00bc tsp five spice powder",
+      "1 tbsp soy sauce",
+      "1 tsp sesame oil",
+      "\u00bd tsp chili flakes",
+      "1 tsp sugar",
+      "1\u20132 tbsp cornstarch (if available)",
+      "1 cup basmati rice",
+      "2\u20133 tbsp oil"
+    ],
+    steps: [
+      "Start rice: rinse basmati, cook with 1.5 cups water, lid on, low heat ~15 min.",
+      "Pat shrimp very dry with paper towels. Toss with cornstarch (or skip if unavailable \u2014 still works, slightly less crispy).",
+      "Mix the sauce: Lao Gan Ma, soy sauce, sesame oil, five spice, chili flakes, sugar. Set aside.",
+      "Heat 2 tbsp oil in a wok or large pan over high heat until smoking.",
+      "Add shrimp in a single layer. Fry without moving for 2 min until edges are golden and crispy. Flip, 1 more min. Remove to a plate.",
+      "Same pan, add a bit more oil. Blister green beans \u2014 cook undisturbed 2 min until charred spots appear. Remove.",
+      "Add mushrooms, sear 2 min until golden. Remove.",
+      "Reduce heat to medium. Add garlic and ginger, stir 20 seconds.",
+      "Add the sauce to the pan. Let it sizzle for 15 seconds.",
+      "Return everything \u2014 shrimp, green beans, mushrooms. Toss for 30 seconds to coat.",
+      "Serve immediately over rice. Top with green onions."
+    ],
+    tips: "Patting the shrimp dry is non-negotiable \u2014 wet shrimp steam instead of fry. If you have cornstarch, the light coating creates those crispy edges that make this dish. The sugar isn\u2019t for sweetness \u2014 it rounds out the chili heat."
+  }
+];
+
+// ── State ──
+const votes = { rehman: new Set(), cristina: new Set() };
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = recipes.map(r => `
+    <div class="card" id="card-${r.id}" data-id="${r.id}">
+      <div class="card-img-wrap">
+        <img class="card-img" src="${r.img}" alt="${r.title}" loading="lazy"
+             onerror="this.parentElement.style.background='linear-gradient(135deg,#2a2620,#1a1714)';this.style.display='none'">
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-row">
+          <span class="tag">${r.origin}</span>
+          <span class="pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            ${r.cookTime}
+          </span>
+        </div>
+        <h2>${r.title}</h2>
+        <div class="card-hook">${r.hook}</div>
+        <div class="spice">${[1,2,3,4,5].map(i => `<span class="${i<=r.spice?'on':''}">\uD83C\uDF36\uFE0F</span>`).join('')}</div>
+        <div class="votes" onclick="event.stopPropagation()">
+          <button class="vote-btn ${votes.rehman.has(r.id)?'active-rehman':''}" onclick="vote('rehman','${r.id}')">
+            <span class="icon">${votes.rehman.has(r.id)?'\u2764\uFE0F':'\uD83E\uDD0D'}</span> Rehman
+          </button>
+          <button class="vote-btn ${votes.cristina.has(r.id)?'active-cristina':''}" onclick="vote('cristina','${r.id}')">
+            <span class="icon">${votes.cristina.has(r.id)?'\u2764\uFE0F':'\uD83E\uDD0D'}</span> Cristina
+          </button>
+        </div>
+      </div>
+      <div class="tap-hint">tap for full recipe</div>
+      <div class="card-expand">
+        <div class="expand-inner">
+          <span class="vibe">${r.vibe}</span>
+          <p>${r.description}</p>
+          <h3>Key Ingredients</h3>
+          <div class="key-chips">${r.keyIngredients.map(k=>`<span>${k}</span>`).join('')}</div>
+          <h3>What Makes It Special</h3>
+          <p>${r.special}</p>
+          <h3>Full Ingredients</h3>
+          <ul class="ing-list">${r.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul>
+          <h3>Steps</h3>
+          <ol class="step-list">${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+          <div class="tip-box"><strong>Tip \u2014</strong> ${r.tips}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.card').forEach(c => {
+    c.addEventListener('click', e => {
+      if (e.target.closest('.votes')) return;
+      c.classList.toggle('open');
+    });
+  });
+
+  updateCounts();
+}
+
+function vote(person, id) {
+  const s = votes[person];
+  s.has(id) ? s.delete(id) : s.add(id);
+  render();
+  updateFab();
+  checkMatches();
+}
+
+function updateCounts() {
+  document.getElementById('rehmanCount').textContent = votes.rehman.size;
+  document.getElementById('cristinaCount').textContent = votes.cristina.size;
+}
+
+function updateFab() {
+  const fab = document.getElementById('fab');
+  fab.classList.toggle('show', votes.rehman.size > 0 && votes.cristina.size > 0);
+}
+
+function checkMatches() {
+  const matches = [...votes.rehman].filter(id => votes.cristina.has(id));
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('matched'));
+  matches.forEach(id => {
+    const card = document.getElementById(`card-${id}`);
+    if (card) card.classList.add('matched');
+  });
+}
+
+function showResults() {
+  const matches = [...votes.rehman].filter(id => votes.cristina.has(id));
+  const sec = document.getElementById('results');
+
+  if (matches.length > 0) {
+    const matched = matches.map(id => recipes.find(r => r.id === id));
+    sec.innerHTML = `
+      <h2>${matches.length === 1 ? "It\u2019s decided!" : "Multiple matches!"} \uD83C\uDF89</h2>
+      <p class="results-sub">You both picked the same ${matches.length === 1 ? 'dish' : 'dishes'}.</p>
+      ${matched.map(r => `
+        <div class="match-banner">
+          <div class="dish">${r.title}</div>
+          <button onclick="goTo('${r.id}')">Go to Recipe \u2192</button>
+        </div>
+      `).join('')}
+      <button class="reset-btn" onclick="resetAll()">Start Over</button>
+    `;
+    fireConfetti();
+  } else {
+    const rPicks = [...votes.rehman].map(id => recipes.find(r => r.id === id).title).join(', ');
+    const cPicks = [...votes.cristina].map(id => recipes.find(r => r.id === id).title).join(', ');
+    sec.innerHTML = `
+      <h2>No exact match \uD83E\uDD14</h2>
+      <p class="results-sub">Time to negotiate!</p>
+      <div class="no-match">
+        <p><strong class="r">Rehman:</strong> <span class="picks">${rPicks}</span></p>
+        <p><strong class="c">Cristina:</strong> <span class="picks">${cPicks}</span></p>
+      </div>
+      <button class="reset-btn" onclick="resetAll()">Try Again</button>
+    `;
+  }
+
+  sec.classList.add('show');
+  document.getElementById('fab').classList.remove('show');
+  setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function goTo(id) {
+  const card = document.getElementById(`card-${id}`);
+  if (card && !card.classList.contains('open')) card.classList.add('open');
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function resetAll() {
+  votes.rehman.clear();
+  votes.cristina.clear();
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('results').innerHTML = '';
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function fireConfetti() {
+  const wrap = document.getElementById('confetti');
+  wrap.innerHTML = '';
+  const colors = ['#f5c842','#e07a3a','#5b8dd9','#d95ba3','#f2ede6','#e85d5d'];
+  for (let i = 0; i < 80; i++) {
+    const bit = document.createElement('div');
+    bit.className = 'confetti-bit';
+    bit.style.left = Math.random() * 100 + 'vw';
+    bit.style.background = colors[Math.floor(Math.random() * colors.length)];
+    bit.style.width = (6 + Math.random() * 10) + 'px';
+    bit.style.height = (6 + Math.random() * 10) + 'px';
+    bit.style.animationDelay = Math.random() * 1 + 's';
+    bit.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+    bit.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    wrap.appendChild(bit);
+  }
+  setTimeout(() => wrap.innerHTML = '', 5000);
+}
+
+render();
+</script>
+</body>
+</html>
