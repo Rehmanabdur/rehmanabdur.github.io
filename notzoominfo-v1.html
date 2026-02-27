@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saber — Real-Time Signals, Not Stale Data</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#000;--surface:#0E0E0E;--surface2:#111;--border:#1C1C1C;--border2:#222;
+  --text:#C8C8C8;--bright:#F0F0F0;--white:#fff;--dim:#777;--dim2:#999;--dim3:#555;
+  --orange:#F5A623;--orange-dim:rgba(245,166,35,0.06);--orange-border:rgba(245,166,35,0.12);
+  --green:#4ade80;--green-dim:rgba(74,222,128,0.04);
+  --red:#ef4444;
+}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  line-height:1.65;font-size:15px;overflow-x:hidden;
+}
+::selection{background:rgba(245,166,35,0.25);color:#fff}
+
+/* ── Layout ── */
+.page{max-width:1200px;margin:0 auto;padding:0 48px}
+section{padding:120px 0}
+@media(max-width:768px){
+  .page{padding:0 20px}
+  section{padding:80px 0}
+}
+
+/* ── Typography ── */
+.eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--orange);margin-bottom:16px;
+}
+.section-label{
+  font-size:12px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--bright);margin-bottom:32px;
+}
+h1{font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-0.03em;line-height:1.1;color:var(--white);overflow-wrap:break-word}
+h2{font-size:clamp(28px,4vw,48px);font-weight:700;letter-spacing:-0.02em;line-height:1.1;color:var(--white)}
+h3{font-size:20px;font-weight:600;letter-spacing:-0.01em;color:var(--bright)}
+.subhead{font-size:clamp(16px,2vw,18px);color:var(--dim2);margin-top:12px;max-width:560px}
+
+/* ── Displacement Banner ── */
+.displacement{
+  background:var(--orange);padding:14px 32px;text-align:center;
+  position:sticky;top:0;z-index:100;
+}
+.displacement p{font-size:14px;color:#000;font-weight:600;line-height:1.4;letter-spacing:-0.01em}
+
+/* ── Nav ── */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:24px 0}
+.nav-brand{font-size:18px;font-weight:700;color:var(--white);letter-spacing:-0.02em}
+.nav-brand span{color:var(--orange)}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{font-size:13px;color:var(--dim2);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--bright)}
+.nav-cta{
+  background:var(--orange);color:#000;border:none;border-radius:6px;
+  padding:8px 18px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+  transition:background 0.2s,transform 0.2s;
+}
+.nav-cta:hover{background:#e6951a;transform:translateY(-1px)}
+@media(max-width:768px){.nav-links{display:none}.nav-hamburger{display:flex}}
+.nav-hamburger{
+  display:none;align-items:center;justify-content:center;
+  width:36px;height:36px;background:none;border:1px solid var(--border);
+  border-radius:6px;cursor:pointer;flex-direction:column;gap:4px;
+}
+.nav-hamburger span{display:block;width:18px;height:2px;background:var(--bright);border-radius:1px;transition:transform 0.2s,opacity 0.2s}
+.nav-hamburger.open span:nth-child(1){transform:rotate(45deg) translate(3px,3px)}
+.nav-hamburger.open span:nth-child(2){opacity:0}
+.nav-hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(3px,-3px)}
+.nav-mobile-menu{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.95);z-index:99;
+  flex-direction:column;align-items:center;justify-content:center;gap:32px;
+  animation:fadeIn 0.2s ease;
+}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu a{font-size:18px;color:var(--bright);text-decoration:none;transition:color 0.2s}
+.nav-mobile-menu a:hover{color:var(--orange)}
+.nav-mobile-menu .nav-cta{font-size:16px;padding:12px 28px}
+
+/* ── Hero ── */
+.hero{padding:100px 0 80px;max-width:720px;position:relative;overflow:hidden}
+.hero p{font-size:18px;color:var(--text);margin-top:24px;line-height:1.7;max-width:540px}
+@media(max-width:768px){.hero{padding:60px 0 48px}}
+
+/* ── Comparison ── */
+.comparison-grid{
+  display:grid;grid-template-columns:2fr 3fr;gap:2px;
+  border-radius:12px;overflow:hidden;
+}
+.comp-side{padding:40px 36px}
+.comp-left{background:#0A0A0A}
+.comp-right{background:var(--orange-dim);transition:background 0.3s}
+.comp-title{
+  font-size:10px;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;margin-bottom:24px;
+}
+.comp-left .comp-title{color:var(--dim)}
+.comp-right .comp-title{color:var(--orange)}
+.comp-line{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0}
+.comp-key{font-size:12px;color:var(--dim)}
+.comp-val{font-size:12px;color:var(--text);text-align:right;max-width:55%;line-height:1.4}
+.comp-right .comp-val{color:var(--bright)}
+.comp-coda{margin-top:18px;font-size:12px;color:var(--dim);font-style:italic}
+.comp-stamp{
+  display:inline-block;margin-top:18px;background:var(--orange);
+  color:#000;font-size:10px;font-weight:700;letter-spacing:0.06em;
+  padding:4px 10px;border-radius:3px;
+}
+/* Mini brief on right side */
+.mini-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--orange);margin-bottom:8px}
+.mini-narrative{font-size:12px;color:var(--bright);line-height:1.6;font-style:italic;margin-bottom:6px}
+.mini-section{padding-top:16px;margin-top:16px;border-top:1px solid var(--orange-border)}
+.mini-signal{font-size:11px;color:var(--text);padding:4px 0}
+.mini-src{color:var(--dim);font-size:10px;margin-left:4px;text-decoration:underline;text-underline-offset:2px}
+.mini-more{color:var(--dim2);font-style:italic;font-size:11px;padding:4px 0}
+.mini-hook{font-size:11px;color:var(--text);line-height:1.5;border-left:2px solid var(--orange);padding-left:10px}
+@media(max-width:768px){
+  .comparison-grid{grid-template-columns:1fr}
+  .comp-side{padding:28px 20px}
+}
+
+/* ── Works With bar ── */
+.works-with{
+  margin-top:12px;padding:18px 24px;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+}
+.works-with-title{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.works-with-logos{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.works-with-item{display:flex;align-items:center;gap:6px}
+.works-with-item img{border-radius:3px}
+.works-with-item span{font-size:12px;color:var(--dim2)}
+
+/* ── Demo Frame ── */
+.demo-frame{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+}
+.demo-bar{
+  padding:20px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.demo-input{
+  flex:1;background:#0A0A0A;border:1px solid var(--border2);
+  border-radius:6px;padding:12px 16px;font-size:15px;
+  color:var(--bright);font-family:inherit;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.demo-input:focus{border-color:var(--orange);box-shadow:0 0 0 2px rgba(245,166,35,0.15)}
+.demo-input::placeholder{color:var(--dim3)}
+.demo-btn{
+  background:var(--orange);color:#000;border:none;border-radius:6px;
+  padding:12px 24px;font-size:14px;font-weight:600;font-family:inherit;
+  cursor:pointer;transition:background 0.2s,transform 0.2s;white-space:nowrap;
+}
+.demo-btn:hover{background:#e6951a;transform:translateY(-1px)}
+.demo-btn:active{transform:translateY(0)}
+.demo-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.demo-results{padding:28px;min-height:100px}
+@media(max-width:768px){
+  .demo-bar{flex-direction:column}
+  .demo-input{width:100%}
+  .demo-btn{width:100%;text-align:center}
+}
+
+/* ── Signal Score ── */
+.signal-score-area{
+  text-align:center;padding:32px 28px;border-bottom:1px solid var(--border);
+  display:none;
+}
+.signal-score-area.visible{display:block}
+.score-number{font-size:64px;font-weight:800;letter-spacing:-0.03em;line-height:1;color:var(--orange)}
+.score-label{font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.score-ring-wrap{position:relative;display:inline-block;width:120px;height:120px;margin-bottom:4px}
+.score-ring{width:120px;height:120px;transform:rotate(-90deg)}
+.score-ring-bg{fill:none;stroke:var(--border);stroke-width:6}
+.score-ring-fill{fill:none;stroke:var(--orange);stroke-width:6;stroke-linecap:round;stroke-dasharray:339.29;stroke-dashoffset:339.29;transition:stroke-dashoffset 1.2s ease-out,stroke 0.3s}
+.score-ring-wrap .score-number{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.score-limited{font-size:11px;color:var(--dim);margin-top:4px;cursor:help}
+.score-chips{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  margin-top:20px;
+}
+.score-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;
+  opacity:0;transform:translateY(4px);
+  transition:opacity 0.4s ease,transform 0.4s ease;
+}
+.score-chip.visible{opacity:1;transform:translateY(0)}
+.score-chip.active{background:rgba(245,166,35,0.1);color:var(--orange);border:1px solid rgba(245,166,35,0.2)}
+.score-chip.inactive{background:var(--surface);color:var(--dim);border:1px solid var(--border)}
+
+/* ── Signal Cards ── */
+.signal-card{
+  background:#0A0A0A;border:1px solid var(--border);border-radius:8px;
+  padding:20px 24px;margin-bottom:10px;
+  opacity:0;transform:translateY(8px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+}
+.signal-card.visible{opacity:1;transform:translateY(0)}
+.signal-card.narrative{border-left:3px solid var(--orange);background:var(--orange-dim)}
+.signal-card.hook-card{border-left:3px solid var(--green);background:var(--green-dim)}
+.signal-type{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--orange);margin-bottom:8px}
+.signal-body{font-size:13px;color:var(--text);line-height:1.6}
+.signal-source{font-size:11px;color:var(--dim2);margin-top:8px}
+.signal-source a{color:var(--dim2);text-decoration:underline;text-underline-offset:2px;transition:color 0.2s}
+.signal-source a:hover{color:var(--bright)}
+
+/* ── Challenge Action Buttons ── */
+.demo-action{
+  background:#0A0A0A;border:1px solid #333;border-radius:6px;
+  padding:10px 18px;font-size:13px;font-weight:500;
+  color:var(--bright);font-family:inherit;cursor:pointer;
+  transition:border-color 0.2s,color 0.2s;
+}
+.demo-action:hover{border-color:var(--orange);color:var(--white)}
+
+
+/* ── Social Proof ── */
+.proof-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.proof-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:28px;transition:border-color 0.2s;
+}
+.proof-card:hover{border-color:var(--border2)}
+.proof-card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.proof-card-logo{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--white);
+}
+.proof-card-company{font-size:15px;font-weight:600;color:var(--bright)}
+.proof-card-domain{font-size:12px;color:var(--dim)}
+.proof-card-score{
+  font-size:28px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;
+}
+.proof-card-signals{list-style:none;padding:0}
+.proof-card-signals li{
+  font-size:12px;color:var(--dim2);padding:3px 0;padding-left:14px;position:relative;
+}
+.proof-card-signals li::before{
+  content:'';position:absolute;left:0;top:9px;
+  width:5px;height:5px;border-radius:50%;background:var(--orange);
+}
+
+/* ── Content Sections ── */
+.hook-item{
+  font-size:15px;color:var(--text);padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.hook-item:first-of-type{border-top:1px solid var(--border)}
+.hook-num{color:var(--dim2);font-size:12px;margin-right:8px;font-weight:500}
+.thread{border-left:2px solid #333;padding-left:24px}
+.thread p{font-size:14px;color:var(--text);margin-bottom:14px;line-height:1.6}
+.thread .tn{color:var(--dim2);font-size:12px;font-weight:500}
+.tagline{
+  font-size:20px;font-weight:600;color:var(--bright);letter-spacing:-0.01em;
+  padding:18px 0;border-bottom:1px solid var(--border);
+}
+.tagline:first-of-type{border-top:1px solid var(--border)}
+
+/* ── Social Loop ── */
+.social-loop{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:28px;
+}
+
+/* ── Internal Brief ── */
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:48px}
+@media(max-width:768px){.brief-grid{grid-template-columns:1fr}}
+.brief-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px}
+.brief-card-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim3);margin-bottom:8px}
+.brief-card-value{font-size:22px;font-weight:600;color:var(--bright);letter-spacing:-0.01em}
+.brief-card-sub{font-size:13px;color:var(--dim2);margin-top:6px;line-height:1.5}
+.brief-h2{font-size:18px;font-weight:600;color:var(--bright);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.brief-h3{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;margin-top:32px}
+.brief-p{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:12px}
+.brief-ul{list-style:none;padding:0;margin:0 0 24px 0}
+.brief-ul li{font-size:14px;color:var(--text);padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.5;position:relative;padding-left:16px}
+.brief-ul li::before{content:'';position:absolute;left:0;top:15px;width:5px;height:5px;border-radius:50%;background:var(--orange)}
+.brief-tier{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.06em;padding:2px 8px;border-radius:4px;margin-right:8px;vertical-align:middle}
+.brief-tier-1{background:rgba(245,166,35,0.15);color:var(--orange)}
+.brief-tier-2{background:rgba(96,165,250,0.12);color:#60a5fa}
+.brief-tier-3{background:rgba(74,222,128,0.12);color:#4ade80}
+.brief-tier-4{background:rgba(148,163,184,0.12);color:var(--dim2)}
+.brief-channel{display:flex;align-items:baseline;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:14px}
+.brief-channel-name{color:var(--bright);font-weight:500;min-width:120px}
+.brief-channel-detail{color:var(--dim2);line-height:1.5}
+.brief-calendar{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px}
+.brief-calendar th{text-align:left;padding:10px 12px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim3);border-bottom:1px solid var(--border)}
+.brief-calendar td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text);vertical-align:top}
+.brief-calendar td:first-child{color:var(--dim2);font-weight:500;white-space:nowrap}
+.brief-calendar .cal-platform{color:var(--dim2);font-size:12px}
+.brief-detail{margin-top:32px}
+.brief-detail summary{font-size:13px;font-weight:500;color:var(--dim2);cursor:pointer;list-style:none;-webkit-appearance:none;padding:8px 0}
+.brief-detail summary::before{content:'+ ';color:var(--dim3)}
+.brief-detail[open] summary::before{content:'- '}
+.brief-detail-inner{padding-top:16px}
+
+/* ── Footer ── */
+footer{
+  padding:48px 0;border-top:1px solid var(--border);
+  text-align:center;font-size:12px;color:var(--dim);
+}
+footer a{color:var(--orange);text-decoration:none}
+
+/* ── Tech Stack Section ── */
+.techstack-section{
+  background:#0A0A0A;border:1px solid var(--border);border-radius:8px;
+  padding:20px 24px;margin-bottom:10px;
+  opacity:0;transform:translateY(8px);transition:opacity 0.5s ease,transform 0.5s ease;
+}
+.techstack-section.visible{opacity:1;transform:translateY(0)}
+.techstack-heading{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--orange);margin-bottom:14px}
+.techstack-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.techstack-row:last-child{border-bottom:none}
+.techstack-cat{color:var(--dim2);min-width:100px;font-weight:500;font-size:12px}
+.techstack-vendor{color:var(--bright);flex:1}
+.techstack-gap{
+  font-size:10px;font-weight:600;letter-spacing:0.06em;padding:2px 8px;
+  border-radius:3px;background:rgba(245,166,35,0.15);color:var(--orange);
+}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1A1A1A;border:1px solid var(--border2);border-left:3px solid var(--orange);
+  border-radius:6px;padding:12px 20px;font-size:13px;color:var(--bright);
+  z-index:200;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;
+  max-width:440px;font-family:'Inter',sans-serif;
+}
+.toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Fallback Conversion ── */
+.fallback-conversion{padding:40px 28px;text-align:center;display:none}
+.fallback-conversion.visible{display:block;animation:fadeIn 0.4s ease}
+.fallback-scan-log{
+  font-family:'SF Mono','Fira Code','Menlo',monospace;font-size:12px;
+  color:var(--dim2);text-align:left;max-width:480px;margin:0 auto 24px;
+  background:#060606;border:1px solid var(--border);border-radius:8px;padding:16px;
+}
+.fallback-scan-line{opacity:0;transform:translateX(-6px);transition:opacity 0.3s,transform 0.3s;padding:3px 0}
+.fallback-scan-line.visible{opacity:1;transform:translateX(0)}
+.fallback-form{max-width:480px;margin:0 auto;animation:fadeIn 0.4s ease}
+.fallback-form h3{font-size:18px;color:var(--bright);margin-bottom:8px}
+.fallback-form p{font-size:14px;color:var(--dim2);margin-bottom:20px;line-height:1.6}
+.fallback-input-row{display:flex;gap:10px;margin-bottom:12px}
+.fallback-input-row input{
+  flex:1;background:#0A0A0A;border:1px solid var(--border2);border-radius:6px;
+  padding:12px 16px;font-size:14px;color:var(--bright);font-family:inherit;outline:none;
+  transition:border-color 0.2s;
+}
+.fallback-input-row input:focus{border-color:var(--orange)}
+.fallback-input-row button{
+  background:var(--orange);color:#000;border:none;border-radius:6px;
+  padding:12px 20px;font-size:14px;font-weight:600;font-family:inherit;
+  cursor:pointer;white-space:nowrap;transition:background 0.2s;
+}
+.fallback-input-row button:hover{background:#e6951a}
+.fallback-subtitle{font-size:12px;color:var(--dim);margin-top:4px}
+.fallback-confirmation{font-size:15px;color:var(--bright);padding:20px 0}
+
+/* ── Permalink Bar ── */
+.permalink-bar{
+  display:none;align-items:center;gap:10px;padding:10px 28px;
+  border-top:1px solid var(--border);animation:fadeIn 0.3s ease;
+}
+.permalink-bar.visible{display:flex}
+.permalink-url{
+  flex:1;font-family:'SF Mono','Fira Code','Menlo',monospace;font-size:12px;
+  color:var(--dim2);background:var(--surface);padding:8px 12px;
+  border:1px solid var(--border);border-radius:4px;
+}
+.permalink-copy{
+  background:#0A0A0A;border:1px solid #333;border-radius:4px;
+  padding:8px 12px;font-size:11px;color:var(--dim2);font-family:inherit;
+  cursor:pointer;transition:border-color 0.2s,color 0.2s;
+}
+.permalink-copy:hover{border-color:var(--orange);color:var(--bright)}
+
+/* ── Prospect Finder CTA ── */
+.prospect-cta{
+  background:var(--orange-dim);border:1px solid var(--orange-border);
+  border-radius:10px;padding:28px;margin-bottom:10px;
+  opacity:0;transform:translateY(8px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+}
+.prospect-cta.visible{opacity:1;transform:translateY(0)}
+.prospect-cta h3{font-size:18px;font-weight:600;color:var(--bright);margin-bottom:8px;letter-spacing:-0.01em}
+.prospect-cta .cta-sub{font-size:13px;color:var(--dim2);margin-bottom:20px;line-height:1.6}
+
+/* ── Personal Dashboard Prompt (legacy — replaced by prospect-cta) ── */
+.dashboard-prompt{
+  padding:20px 28px;border-top:1px solid var(--border);display:none;
+  text-align:center;animation:fadeIn 0.4s ease;
+}
+.dashboard-prompt.visible{display:block}
+.dashboard-prompt p{font-size:13px;color:var(--dim2);margin-bottom:12px}
+
+/* ── Animations ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.pulse{animation:pulse 1.5s ease infinite}
+
+/* ── Design Effects ── */
+
+/* Hero grid background */
+.hero::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(245,166,35,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,166,35,0.04) 1px, transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
+}
+.hero > *{position:relative;z-index:1}
+
+/* Hero text glow */
+.hero h1{text-shadow:0 0 80px rgba(245,166,35,0.08)}
+
+/* Hero cursor spotlight */
+.hero-spotlight{
+  position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;
+  transition:opacity 0.3s ease;
+  background:radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(245,166,35,0.04), transparent 40%);
+}
+.hero:hover .hero-spotlight{opacity:1}
+
+/* Comparison entrance animations */
+.comp-left, .comp-right{opacity:0;transform:translateX(-20px);transition:opacity 0.5s ease, transform 0.5s ease}
+.comp-right{transform:translateX(20px)}
+.comp-left.visible, .comp-right.visible{opacity:1;transform:translateX(0)}
+
+/* Signal card category borders */
+.signal-card[data-category="leadership"]{border-left:2px solid #60a5fa}
+.signal-card[data-category="hiring"]{border-left:2px solid #4ade80}
+.signal-card[data-category="techStack"]{border-left:2px solid var(--orange)}
+.signal-card[data-category="financial"]{border-left:2px solid #a78bfa}
+.signal-card[data-category="expansion"]{border-left:2px solid #22d3ee}
+.signal-card[data-category="market"]{border-left:2px solid var(--dim)}
+.signal-card.narrative[data-category]{border-left:3px solid var(--orange)}
+.signal-card.hook-card[data-category]{border-left:3px solid var(--green)}
+
+/* Score ring glow */
+.score-ring-fill{filter:drop-shadow(0 0 6px rgba(245,166,35,0.4))}
+
+/* Hover: signal cards */
+.signal-card{transition:opacity 0.5s ease, transform 0.5s ease, border-color 0.2s ease, box-shadow 0.2s ease}
+.signal-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.signal-card:hover .signal-source a{color:var(--orange)}
+
+/* Hover: proof cards */
+.proof-card{transition:border-color 0.2s, transform 0.2s ease, box-shadow 0.2s ease}
+.proof-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.proof-card:hover .proof-card-score{transform:scale(1.05);transition:transform 0.2s ease}
+.proof-card-score{transition:transform 0.2s ease}
+
+/* Hover: buttons glow */
+.demo-btn:hover,.nav-cta:hover{box-shadow:0 0 20px rgba(245,166,35,0.25)}
+
+/* Hover: comparison right panel */
+.comp-right:hover{box-shadow:inset 0 0 40px rgba(245,166,35,0.03)}
+
+/* Hover: works-with items */
+.works-with-item{transition:color 0.2s ease}
+.works-with-item:hover span{color:var(--bright)}
+.works-with-item img{transition:transform 0.2s ease}
+.works-with-item:hover img{transform:scale(1.1)}
+
+/* Displacement banner breathing */
+@keyframes banner-breathe{0%,100%{background:#F5A623}50%{background:#E89520}}
+.displacement{animation:banner-breathe 3s ease-in-out infinite}
+
+/* Fallback terminal cursor + completion flash */
+@keyframes cursor-blink{0%,100%{opacity:1}50%{opacity:0}}
+.fallback-scan-line::after{content:'█';color:var(--dim);animation:cursor-blink 0.8s step-end infinite;margin-left:4px}
+.fallback-scan-line.complete::after{display:none}
+.fallback-scan-line.complete{color:var(--green)}
+
+/* Scroll-triggered entrance defaults */
+[data-animate]{opacity:0;transform:translateY(12px);transition:opacity 0.5s ease, transform 0.5s ease}
+[data-animate].visible{opacity:1;transform:translateY(0)}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.001ms !important;transition-duration:0.001ms !important}
+  .hero-spotlight,#hero-particles{display:none}
+  [data-animate]{opacity:1;transform:none}
+  .comp-left,.comp-right{opacity:1;transform:none}
+}
+
+</style>
+</head>
+<body>
+<div id="grain-overlay" style="position:fixed;inset:0;z-index:9999;pointer-events:none"></div>
+
+<!-- ═══════ DISPLACEMENT BANNER ═══════ -->
+<div class="displacement">
+  <p>Stuck in a data contract? Switch to Saber &mdash; we'll cover you until it expires.</p>
+</div>
+
+<!-- ═══════ NAV ═══════ -->
+<div class="page">
+  <nav class="nav">
+    <div class="nav-brand">Saber <span>Signals</span></div>
+    <div class="nav-links">
+      <a href="#comparison">Compare</a>
+      <a href="#demo">Try it</a>
+      <button class="nav-cta" onclick="document.getElementById('demo-input').focus()">Run Signals</button>
+    </div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="nav-mobile-menu" id="nav-mobile-menu">
+    <a href="#comparison" onclick="closeMobileMenu()">Compare</a>
+    <a href="#demo" onclick="closeMobileMenu()">Try it</a>
+    <button class="nav-cta" onclick="closeMobileMenu();document.getElementById('demo-input').focus()">Run Signals</button>
+  </div>
+</div>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="page">
+  <div class="hero">
+    <div class="hero-spotlight"></div>
+    <div id="hero-particles" style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0.15;overflow:hidden"></div>
+    <div class="eyebrow">Real-time signals API</div>
+    <h1>See which companies are buying right now.</h1>
+    <p>Real-time signals on any company. Then let us find who's in-market for you.</p>
+  </div>
+</div>
+
+<!-- ═══════ COMPARISON SECTION ═══════ -->
+<div class="page" id="comparison">
+  <section>
+    <div class="section-label">The Comparison</div>
+
+    <div class="comparison-grid">
+      <div class="comp-side comp-left">
+        <div class="comp-title">Your Current Data Provider</div>
+        <div class="comp-line"><span class="comp-key">You get</span><span class="comp-val">500 contacts (name + email)</span></div>
+        <div class="comp-line"><span class="comp-key">Context</span><span class="comp-val">Industry, HQ, revenue, founded</span></div>
+        <div class="comp-line"><span class="comp-key">Freshness</span><span class="comp-val">Last updated... sometime</span></div>
+        <div class="comp-line"><span class="comp-key">Why buying?</span><span class="comp-val">Not included</span></div>
+        <div class="comp-line"><span class="comp-key">Sources</span><span class="comp-val">Not included</span></div>
+        <div class="comp-line"><span class="comp-key">Next step</span><span class="comp-val">Email all 500 and hope</span></div>
+        <div class="comp-coda">Sound familiar?</div>
+      </div>
+      <div class="comp-side comp-right" id="comp-right">
+          <div class="comp-title" style="color:var(--orange)">Saber API &mdash; Live Signal Run</div>
+          <div class="mini-label">WHY NOW</div>
+          <div class="mini-narrative">"New VP RevOps is 3 weeks in. CDP migration mid-flight. 12 engineering hires this month. Active evaluation window."</div>
+          <div class="mini-section">
+            <div class="mini-label">SIGNALS (12 sourced)</div>
+            <div class="mini-signal">&rarr; RevOps Leadership Change <span class="mini-src">linkedin.com</span></div>
+            <div class="mini-signal">&rarr; CDP Migration In Progress <span class="mini-src">builtwith.com</span></div>
+            <div class="mini-signal">&rarr; Engineering Hiring Surge (3x) <span class="mini-src">stripe.com/jobs</span></div>
+            <div class="mini-more">+ 9 more signals with sources</div>
+          </div>
+          <div class="mini-section">
+            <div class="mini-label">OUTREACH HOOK</div>
+            <div class="mini-hook">"Segment tags gone from your docs, RudderStack on billing. When the CDP is mid-migration, the analytics layer usually gets re-evaluated too &mdash; is that on the table?"</div>
+          </div>
+          <div class="comp-stamp">SOURCES INCLUDED</div>
+      </div>
+    </div>
+
+    <div class="works-with" style="margin-top:16px" data-animate>
+      <div class="works-with-title">Works with</div>
+      <div class="works-with-logos">
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=salesforce.com&sz=32" width="18" height="18"><span>Salesforce</span></div>
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=hubspot.com&sz=32" width="18" height="18"><span>HubSpot</span></div>
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=clay.com&sz=32" width="18" height="18"><span>Clay</span></div>
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" width="18" height="18"><span>Claude / Code / Cowork</span></div>
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=cursor.com&sz=32" width="18" height="18"><span>Cursor</span></div>
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=n8n.io&sz=32" width="18" height="18"><span>n8n</span></div>
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=make.com&sz=32" width="18" height="18"><span>Make</span></div>
+        <div class="works-with-item"><img src="https://www.google.com/s2/favicons?domain=zapier.com&sz=32" width="18" height="18"><span>Zapier</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ INTERACTIVE DEMO ═══════ -->
+<div class="page" id="demo">
+  <section>
+    <div class="section-label">Interactive Demo</div>
+    <h2 style="margin-bottom:12px">Run signals on any company.</h2>
+    <p class="subhead" style="margin-bottom:48px">Pre-loaded with real signal data for well-known companies. In production, every domain triggers a live API run.</p>
+
+    <div class="demo-frame">
+      <div class="demo-bar">
+        <input type="text" class="demo-input" id="demo-input" placeholder="stripe.com" autocomplete="off" spellcheck="false">
+        <button class="demo-btn" id="demo-btn" onclick="runDemo()">Run Signals</button>
+      </div>
+
+      <div class="signal-score-area" id="demo-score-area">
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120">
+            <circle class="score-ring-bg" cx="60" cy="60" r="54"/>
+            <circle class="score-ring-fill" id="demo-score-ring" cx="60" cy="60" r="54"/>
+          </svg>
+          <div class="score-number" id="demo-score-number" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0</div>
+        </div>
+        <div class="score-label">Signal Score</div>
+        <div class="score-limited" id="demo-score-limited" style="display:none" title="Limited public data available. Score may increase with more signals."></div>
+        <div class="score-chips" id="demo-score-chips"></div>
+      </div>
+
+      <div class="demo-results" id="demo-results"></div>
+
+      <div class="fallback-conversion" id="demo-conversion"></div>
+
+      <div class="permalink-bar" id="demo-permalink"></div>
+      <div class="dashboard-prompt" id="demo-dashboard-prompt"></div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ═══════ SOCIAL PROOF ═══════ -->
+<div class="page">
+  <section>
+    <div class="section-label">More Signal Runs</div>
+    <div class="proof-grid" id="proof-grid"></div>
+  </section>
+</div>
+
+
+<!-- ═══════ INTERNAL: DISTRIBUTION BRIEF (collapsed) ═══════ -->
+<div class="page">
+  <details style="padding:32px 0;border-top:1px solid var(--border)">
+    <summary style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim3);cursor:pointer;list-style:none;-webkit-appearance:none">Distribution Strategy</summary>
+
+    <div style="margin-top:32px">
+      <div class="eyebrow">Internal Brief</div>
+      <h3 style="margin-bottom:12px">NotZoomInfo Launch &mdash; Distribution Plan</h3>
+      <p style="font-size:14px;color:var(--dim2);margin-bottom:40px;line-height:1.6">How we turn a landing page into a distribution engine. $0 ad spend. The product IS the marketing.</p>
+
+      <!-- ── Key Numbers ── -->
+      <div class="brief-grid">
+        <div class="brief-card">
+          <div class="brief-card-label">Influencer Seeding</div>
+          <div class="brief-card-value">20 targets</div>
+          <div class="brief-card-sub">~2M combined LinkedIn reach. 17/20 are LinkedIn-primary. 5 also active on X.</div>
+        </div>
+        <div class="brief-card">
+          <div class="brief-card-label">Launch Channels</div>
+          <div class="brief-card-value">6 channels</div>
+          <div class="brief-card-sub">X, LinkedIn, RevOps Co-Op Slack, Reddit r/sales, Pavilion Slack, Email.</div>
+        </div>
+        <div class="brief-card">
+          <div class="brief-card-label">Content Pieces</div>
+          <div class="brief-card-value">12 assets</div>
+          <div class="brief-card-sub">Challenge tweet, thread, carousel, community posts, influencer DMs, email sequences.</div>
+        </div>
+        <div class="brief-card">
+          <div class="brief-card-label">Launch Window</div>
+          <div class="brief-card-value">7 days</div>
+          <div class="brief-card-sub">Tuesday launch &rarr; following Tuesday "Signal Tuesday" recurring series begins.</div>
+        </div>
+      </div>
+
+      <!-- ── Core Thesis ── -->
+      <div class="brief-h2">Core Thesis</div>
+      <div class="brief-p">NotZoomInfo is not a product launch. It's a <strong style="color:var(--bright)">distribution loop</strong> disguised as a free tool. The mechanic:</div>
+      <ul class="brief-ul">
+        <li>Rehman posts "reply with a domain" on X</li>
+        <li>People reply publicly &rarr; visible engagement &rarr; more people reply</li>
+        <li>Public teaser (signal count + 2 headlines) &rarr; full report in DMs</li>
+        <li>DM includes permalink (notzoominfo.com/run/domain) &rarr; they share internally and externally</li>
+        <li>Every shared permalink is a Saber ad with an email capture</li>
+      </ul>
+      <div class="brief-p" style="color:var(--dim2)">The product demonstrates itself. Every signal run is proof. Every permalink is a shareable case study.</div>
+
+      <!-- ── The Social Loop (visual) ── -->
+      <div class="brief-h3">The Loop</div>
+      <div class="social-loop">
+        <div style="font-size:14px;color:var(--bright);margin-bottom:16px;line-height:1.6">
+          <strong style="color:var(--orange)">@rehman:</strong> "Reply with a domain &mdash; I'll DM you 3 why-now signals with sources."
+        </div>
+        <div style="font-size:13px;color:var(--dim2);padding-left:20px;border-left:2px solid #333;margin-bottom:12px">
+          <strong style="color:var(--bright)">@prospect:</strong> "notion.so"
+        </div>
+        <div style="font-size:13px;color:var(--text);padding-left:20px;border-left:2px solid var(--orange);line-height:1.6;margin-bottom:12px">
+          <strong style="color:var(--orange)">@rehman</strong> <span style="color:var(--dim)">(public reply):</span> "7 signals found for Notion, including a new Head of Product and a PostHog migration. Full report incoming &mdash; check your DMs."
+        </div>
+        <div style="font-size:13px;color:var(--text);padding-left:20px;border-left:2px solid var(--dim3);line-height:1.6;opacity:0.7">
+          <strong style="color:var(--dim2)">[DM]</strong> Link: notzoominfo.com/run/notion-so
+        </div>
+        <div style="font-size:13px;color:var(--dim2);margin-top:16px">Others see the public teaser &rarr; want their own &rarr; reply with domain &rarr; cycle repeats.</div>
+      </div>
+
+      <!-- ── Influencer Seeding ── -->
+      <div class="brief-h2" style="margin-top:48px">Influencer Seeding (20 Targets)</div>
+      <div class="brief-p">Pre-run each influencer's company domain through Saber. DM them the results. The outreach IS the product demo. "No ask" &mdash; just show them their own data.</div>
+
+      <div class="brief-h3"><span class="brief-tier brief-tier-1">TIER 1</span> Highest Impact (reach + alignment)</div>
+      <ul class="brief-ul">
+        <li><strong style="color:var(--bright)">Josh Braun</strong> (225K) &mdash; #1 LI sales voice, anti-gimmick brand = anti-ZoomInfo. Domain: joshbraun.com</li>
+        <li><strong style="color:var(--bright)">Jason Lemkin</strong> (285K) &mdash; Largest reach, SaaStr amplification, replaced sales team with AI. Domain: saastr.com</li>
+        <li><strong style="color:var(--bright)">Adam Robinson</strong> (140K) &mdash; Build-in-public founder, data/identity space (RB2B). Domain: rb2b.com</li>
+        <li><strong style="color:var(--bright)">Kevin Dorsey</strong> (137K) &mdash; CRO audience, scaling SaaS companies. Domain: finally.com</li>
+        <li><strong style="color:var(--bright)">Kyle Coleman</strong> (130K) &mdash; Marketing leader, GTM frameworks. Domain: clickup.com</li>
+      </ul>
+
+      <div class="brief-h3"><span class="brief-tier brief-tier-2">TIER 2</span> Strong Fit (good reach + solid alignment)</div>
+      <ul class="brief-ul">
+        <li><strong style="color:var(--bright)">Chris Walker</strong> (130K+) &mdash; Anti-bad-data brand. refinelabs.com</li>
+        <li><strong style="color:var(--bright)">Morgan Ingram</strong> (165K) &mdash; SDR community, personalization focus. ampthecompany.com</li>
+        <li><strong style="color:var(--bright)">Sam McKenna</strong> (100K+) &mdash; Social selling methodology. samsalesconsulting.com</li>
+        <li><strong style="color:var(--bright)">Devin Reed</strong> (100K+) &mdash; Content virality expert. thereeder.co</li>
+        <li><strong style="color:var(--bright)">Scott Leese</strong> (90K) &mdash; Startup sales, active on X too. scottleese.com</li>
+      </ul>
+
+      <details class="brief-detail">
+        <summary>Tier 3 &amp; 4 (10 more targets)</summary>
+        <div class="brief-detail-inner">
+          <div class="brief-h3" style="margin-top:0"><span class="brief-tier brief-tier-3">TIER 3</span> Targeted (niche audience, strong fit)</div>
+          <ul class="brief-ul">
+            <li><strong style="color:var(--bright)">Jen Allen-Knuth</strong> (85K) &mdash; Buyer psychology + triggers. demandjen.com</li>
+            <li><strong style="color:var(--bright)">Sarah Brazier</strong> (80K) &mdash; SDR community, co-founded Dimmo. dimmo.ai</li>
+            <li><strong style="color:var(--bright)">Nate Nasralla</strong> (72K) &mdash; Enterprise deal intel. fluint.io</li>
+            <li><strong style="color:var(--bright)">Florin Tatulea</strong> (55K) &mdash; Signal/intent space (Common Room). commonroom.io</li>
+            <li><strong style="color:var(--bright)">Becc Holland</strong> (50K+) &mdash; Cold email personalization. flipthescript.co</li>
+            <li><strong style="color:var(--bright)">Mark Kosoglow</strong> (50K+) &mdash; Revenue leadership, built Outreach. docebo.com</li>
+            <li><strong style="color:var(--bright)">Krysten Conner</strong> (40K+) &mdash; Signal-based selling (UserGems). usergems.com</li>
+          </ul>
+          <div class="brief-h3"><span class="brief-tier brief-tier-4">TIER 4</span> Niche but Aligned</div>
+          <ul class="brief-ul">
+            <li><strong style="color:var(--bright)">Belal Batrawy</strong> (30K+) &mdash; Anti-fluff brand. deathtofluff.com</li>
+            <li><strong style="color:var(--bright)">Jed Mahrle</strong> (30K newsletter) &mdash; Outbound systems. practicalprospecting.io</li>
+            <li><strong style="color:var(--bright)">Charlotte Lloyd</strong> (30K+) &mdash; UK/EU geographic reach. thecharlottelloyd.com</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="brief-p" style="margin-top:16px;color:var(--dim2)"><strong style="color:var(--dim)">Outreach playbook:</strong> DM with pre-run permalink. Lead with most interesting signal. "No ask." If they respond positively: "Want me to run your top 5 target accounts?"</div>
+
+      <!-- ── Launch Week Calendar ── -->
+      <div class="brief-h2" style="margin-top:48px">Launch Week</div>
+      <table class="brief-calendar">
+        <thead>
+          <tr><th>Day</th><th>Action</th><th>Content</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tue (LAUNCH)</td>
+            <td>Challenge Tweet <span class="cal-platform">&mdash; X</span></td>
+            <td>"Reply with a domain. I bet I find 3 buying signals in 30 seconds." Pin for full week. 10 friends pre-loaded with cached domains.</td>
+          </tr>
+          <tr>
+            <td>Tue 2pm</td>
+            <td>Quote-tweet <span class="cal-platform">&mdash; X</span></td>
+            <td>30-sec Remotion video demo showing live signal run.</td>
+          </tr>
+          <tr>
+            <td>Wed</td>
+            <td>6-Tweet Thread <span class="cal-platform">&mdash; X</span></td>
+            <td>Full positioning thread with Stripe signal screenshot. See "Ready Content" below.</td>
+          </tr>
+          <tr>
+            <td>Wed</td>
+            <td>LinkedIn Carousel + Community <span class="cal-platform">&mdash; LI, Slack</span></td>
+            <td>7-slide carousel ("What your data provider gives you vs. what you need"). Post to RevOps Co-Op Slack.</td>
+          </tr>
+          <tr>
+            <td>Thu</td>
+            <td>Influencer DMs <span class="cal-platform">&mdash; X DM, LI DM</span></td>
+            <td>All 20 influencers. Pre-run their domains first. Tier 1 priority.</td>
+          </tr>
+          <tr>
+            <td>Thu</td>
+            <td>Reddit AMA <span class="cal-platform">&mdash; r/sales</span></td>
+            <td>"I built notzoominfo.com &mdash; it finds buying signals your data provider misses. AMA."</td>
+          </tr>
+          <tr>
+            <td>Fri</td>
+            <td>LinkedIn Launch Post <span class="cal-platform">&mdash; LI</span></td>
+            <td>"I spent $0 on ads and got [X] companies to run signals in [Y] hours." Uses real metrics from the week.</td>
+          </tr>
+          <tr>
+            <td>Weekend</td>
+            <td>Pavilion Slack <span class="cal-platform">&mdash; Slack</span></td>
+            <td>Community post for RevOps audience. "Would appreciate candid feedback."</td>
+          </tr>
+          <tr>
+            <td>Next Tue</td>
+            <td>Signal Tuesday #1 <span class="cal-platform">&mdash; LI + X</span></td>
+            <td>Run a well-known company (Salesforce), share real results. Recurring weekly series begins.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ── Channel Strategy ── -->
+      <div class="brief-h2">Channels</div>
+      <div class="brief-channel">
+        <span class="brief-channel-name">X (Twitter)</span>
+        <span class="brief-channel-detail">Primary launch platform. Challenge tweet &rarr; thread &rarr; reply-to-run loop. Pin tweet for the week. Jason Lemkin, Scott Leese, Morgan Ingram are X-active.</span>
+      </div>
+      <div class="brief-channel">
+        <span class="brief-channel-name">LinkedIn</span>
+        <span class="brief-channel-detail">17/20 influencers are LI-primary. Carousel on Wed, launch post on Fri, Signal Tuesday recurring. Rehman's personal account.</span>
+      </div>
+      <div class="brief-channel">
+        <span class="brief-channel-name">RevOps Co-Op</span>
+        <span class="brief-channel-detail">Slack community. "Built something, curious for your take." Genuine feedback angle, not self-promo.</span>
+      </div>
+      <div class="brief-channel">
+        <span class="brief-channel-name">Reddit r/sales</span>
+        <span class="brief-channel-detail">AMA format. "Drop a domain in the comments." Run signals live in replies. High engagement potential.</span>
+      </div>
+      <div class="brief-channel">
+        <span class="brief-channel-name">Pavilion Slack</span>
+        <span class="brief-channel-detail">Weekend post. RevOps folks. "Candid feedback on signal types for account prioritization."</span>
+      </div>
+      <div class="brief-channel">
+        <span class="brief-channel-name">Email</span>
+        <span class="brief-channel-detail">Post-capture sequence: welcome email with permalink &rarr; signal change notifications &rarr; weekly Friday digest.</span>
+      </div>
+
+      <!-- ── Ready Content ── -->
+      <div class="brief-h2" style="margin-top:48px">Ready Content</div>
+
+      <div class="brief-h3">Tweet Hooks (pick one for launch)</div>
+      <div class="hook-item"><span class="hook-num">1.</span>"I bet I can find 3 buying signals about your target account in 30 seconds. No firmographics. No stale database. Real signals with source links you can click. Reply with a domain."</div>
+      <div class="hook-item"><span class="hook-num">2.</span>"If your 'data provider' can't explain why now, it's a phonebook."</div>
+      <div class="hook-item"><span class="hook-num">3.</span>"Firmographics tell you a company exists. Signals tell you they're buying."</div>
+      <div class="hook-item"><span class="hook-num">4.</span>"Type a domain. Watch live signals appear. That's the whole product."</div>
+      <div class="hook-item"><span class="hook-num">5.</span>"I built notzoominfo. Same idea, but with sources for every claim."</div>
+
+      <details class="brief-detail">
+        <summary>6-Tweet Thread (Wed launch)</summary>
+        <div class="brief-detail-inner">
+          <div class="thread">
+            <p><span class="tn">1/</span> Most "enrichment" tools give you the same thing: name, email, company, title, revenue, industry. That's not intelligence. That's a spreadsheet from 6 months ago.</p>
+            <p><span class="tn">2/</span> I bought notzoominfo.com and built something on it. Type a company domain. It runs live signals. You get back WHY that company might buy from you right now &mdash; with clickable source links for every claim.</p>
+            <p><span class="tn">3/</span> Here's what it found for Stripe in under 10 seconds: New VP RevOps (3 weeks in). Active CDP migration (Segment out, RudderStack in). 12 new engineering hires this month.</p>
+            <p><span class="tn">4/</span> The gap is absurd. Legacy tools: "Stripe. 8000 employees. San Francisco. Fintech." My tool: "Stripe has a new RevOps leader in her first 90 days, an active vendor migration, and is hiring 3x the engineering roles they had last month."</p>
+            <p><span class="tn">5/</span> Every signal has a source URL. Not "our proprietary algorithm detected intent." An actual link to the LinkedIn post, the job board, the press release. If you can't click and verify, it's made up.</p>
+            <p><span class="tn">6/</span> Reply with a company domain. I'll run it live and DM you the results. Bet I find at least 2 signals your sales team doesn't know about.</p>
+          </div>
+        </div>
+      </details>
+
+      <details class="brief-detail">
+        <summary>Influencer DM Template</summary>
+        <div class="brief-detail-inner">
+          <div class="social-loop">
+            <div style="font-size:14px;color:var(--text);line-height:1.7">
+              Hey [First Name] &mdash; built notzoominfo.com. Ran your company through it.<br><br>
+              Found [X] signals, including [most interesting signal].<br><br>
+              Full run: notzoominfo.com/run/[their-domain-slug]<br><br>
+              No ask. Just thought you'd find the results interesting.
+            </div>
+          </div>
+          <div class="brief-p" style="margin-top:12px;color:var(--dim2)">Rules: Always pre-run their company. Lead with the most interesting signal. Under 50 words. If they respond positively: "Want me to run your top 5 target accounts? I'll send you the comparison."</div>
+        </div>
+      </details>
+
+      <details class="brief-detail">
+        <summary>Teaser Reply Template (public replies on X)</summary>
+        <div class="brief-detail-inner">
+          <div class="social-loop">
+            <div style="font-size:14px;color:var(--text);line-height:1.7">
+              [X] signals found for [Company Name] &mdash; including [Signal 1 headline] and [Signal 2 headline].<br><br>
+              Full report in your DMs.
+            </div>
+          </div>
+          <div class="brief-p" style="margin-top:12px;color:var(--dim2)">Always lead with signal count. Pick the 2 most specific signals. Never give away the full report publicly.</div>
+        </div>
+      </details>
+
+      <details class="brief-detail">
+        <summary>Community Post Templates (Slack, Reddit)</summary>
+        <div class="brief-detail-inner">
+          <div class="brief-h3" style="margin-top:0">RevOps Co-Op / Pavilion Slack</div>
+          <div class="social-loop" style="margin-bottom:16px">
+            <div style="font-size:14px;color:var(--text);line-height:1.7">
+              Built something I'm curious to get your take on. I bought notzoominfo.com and turned it into a live signal lookup. You type a company domain, it runs real-time signals and returns what's actually happening &mdash; leadership changes, tech migrations, hiring surges. Every signal has a source URL you can click. It's free to try. Would genuinely appreciate feedback on whether the signals are useful in practice.
+            </div>
+          </div>
+          <div class="brief-h3">Reddit r/sales AMA</div>
+          <div class="social-loop">
+            <div style="font-size:14px;color:var(--text);line-height:1.7">
+              <strong style="color:var(--bright)">Title:</strong> I built notzoominfo.com &mdash; it finds buying signals your data provider misses. AMA.<br><br>
+              I'm a cofounder at Saber. We built an API that answers custom questions about companies using real-time public data. Every signal has a source URL. Not "our AI detected intent." An actual link. Happy to run any company &mdash; drop a domain in the comments.
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- ── One-Liners ── -->
+      <div class="brief-h3">One-Liners (for replies, captions, bios)</div>
+      <div class="tagline">"Every signal has a source link. If you can't click and verify, it's made up."</div>
+      <div class="tagline">"Firmographics are cute. 'Why now' books meetings."</div>
+      <div class="tagline">"Stop buying contacts. Start buying context."</div>
+
+    </div>
+  </details>
+</div>
+
+<!-- ═══════ FOOTER ═══════ -->
+<div class="page">
+  <footer>
+    <p>A <a href="https://saber.app" target="_blank">Saber</a> project. Real-time signals API for GTM teams.</p>
+  </footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DEMO DATA — Hardcoded signal data for 8 companies
+// ═══════════════════════════════════════════════════════
+const DEMO_DATA = {
+  "stripe.com": {
+    company: "Stripe", domain: "stripe.com", employees: 8000,
+    whatsHappening: [
+      { text: "New CFO appointed in December 2025 from Goldman Sachs. Leading financial operations and IPO preparation.", source: "https://reuters.com/stripe-cfo", recency: "December 2025" },
+      { text: "New VP of Revenue Operations started 3 weeks ago, previously Director of GTM Systems at Datadog. First 90 days = tooling evaluation window.", source: "https://linkedin.com/in/sarah-chen", recency: "February 2026" },
+      { text: "Segment tags removed from stripe.com/docs in January. RudderStack SDK detected on stripe.com/billing since Feb 1. Active vendor migration.", source: "https://builtwith.com/stripe.com", recency: "January 2026" },
+      { text: "Job postings reference Amplitude, Mixpanel, and internal tooling across different teams. No single analytics standard identified.", source: "https://linkedin.com/jobs/stripe", recency: "Current" },
+      { text: "Hiring surge: 40+ engineering and GTM roles posted in 30 days, 3x normal velocity. Includes Head of Developer Experience and enterprise sales leadership.", source: "https://stripe.com/jobs", recency: "February 2026" },
+      { text: "New Dublin engineering hub opened January 2026 as part of EMEA expansion. GDPR-first architecture for European enterprise clients.", source: "https://stripe.com/newsroom", recency: "January 2026" },
+      { text: "Series I raised at $65B valuation ($6.5B round). Largest private fintech funding in history.", source: "https://crunchbase.com/stripe", recency: "2025" },
+      { text: "Stripe Billing v3 launched with usage-based pricing engine. Major product investment in payments infrastructure.", source: "https://stripe.com/blog", recency: "January 2026" }
+    ],
+    contacts: [
+      { name: "Sarah Chen", title: "VP Revenue Operations", linkedin: "https://linkedin.com/in/sarah-chen" },
+      { name: "David Singleton", title: "CTO", linkedin: "https://linkedin.com/in/david-singleton" }
+    ],
+    techStack: [
+      { category: "CDP", vendor: "RudderStack (migrating from Segment)", isGap: false },
+      { category: "Analytics", vendor: "Amplitude + Mixpanel + Internal", isGap: true },
+      { category: "Cloud", vendor: "AWS", isGap: false },
+      { category: "CRM", vendor: "Salesforce", isGap: false }
+    ],
+    hooks: [
+      { type: "CDP Migration", text: "Segment tags disappeared from your docs in January and RudderStack appeared on billing in February. When the CDP is in flux, the analytics layer usually gets re-evaluated too \u2014 is that happening at Stripe?" },
+      { type: "New VP RevOps", text: "Sarah \u2014 congratulations on the VP RevOps role. Moving from Datadog to Stripe during a CDP migration sounds like you inherited a full plate. Curious how you're thinking about the analytics consolidation." }
+    ]
+  },
+  "hubspot.com": {
+    company: "HubSpot", domain: "hubspot.com", employees: 7400,
+    whatsHappening: [
+      { text: "New VP of Product joined 3 months ago from Shopify. Leading the Breeze AI platform strategy.", source: "https://linkedin.com/in/hubspot-vp-product", recency: "November 2025" },
+      { text: "New Director of Revenue Operations appointed 8 months ago from internal promotion. Expanding RevOps function.", source: "https://linkedin.com/company/hubspot", recency: "June 2025" },
+      { text: "Migrating Commerce Hub from legacy architecture to microservices. Active platform re-architecture.", source: "https://hubspot.com/developer-blog", recency: "January 2026" },
+      { text: "Hiring SDR and AE roles across North America and EMEA. Investing in enterprise sales motion.", source: "https://hubspot.com/careers", recency: "Current" },
+      { text: "30% headcount growth YoY. Expanding EMEA operations with new Dublin and London offices.", source: "https://hubspot.com/company/news", recency: "2025" },
+      { text: "$2.4B quarterly revenue, 23% YoY growth. Strong enterprise customer expansion driving new segment.", source: "https://investor.hubspot.com", recency: "January 2026" },
+      { text: "Breeze AI launch: AI-powered CRM assistant. Commerce Hub expanded. Major product investments.", source: "https://hubspot.com/products", recency: "October 2025" }
+    ],
+    contacts: [
+      { name: "Kipp Bodnar", title: "CMO", linkedin: "https://linkedin.com/in/kippbodnar" },
+      { name: "Yamini Rangan", title: "CEO", linkedin: "https://linkedin.com/in/yaminirangan" }
+    ],
+    techStack: [
+      { category: "CRM", vendor: "HubSpot (own platform)", isGap: false },
+      { category: "Analytics", vendor: "Internal", isGap: false },
+      { category: "Cloud", vendor: "AWS + GCP", isGap: false }
+    ],
+    hooks: [
+      { type: "Breeze AI Launch", text: "The Breeze AI launch is a big bet on AI-native CRM. Curious if your data infrastructure team is evaluating how signal data could feed the AI layer \u2014 or if that's all internal." }
+    ]
+  },
+  "notion.so": {
+    company: "Notion", domain: "notion.so", employees: 800,
+    whatsHappening: [
+      { text: "New COO joined in January 2026 from Stripe. First COO hire ever — signals operational maturity shift.", source: "https://techcrunch.com/notion-coo", recency: "January 2026" },
+      { text: "New VP of Sales joined 4 months ago from Figma. Building enterprise sales motion from scratch.", source: "https://linkedin.com/in/notion-vp-sales", recency: "October 2025" },
+      { text: "Migrating from Amplitude to PostHog. Internal analytics team building custom event pipeline in parallel.", source: "https://builtwith.com/notion.so", recency: "January 2026" },
+      { text: "Hiring enterprise sales and GTM roles: 15+ open positions including Head of Enterprise Sales, Strategic AEs.", source: "https://notion.so/careers", recency: "February 2026" },
+      { text: "Series D funding ($150M at $10B valuation) raised in Q2 2025. Fresh capital fueling enterprise expansion.", source: "https://crunchbase.com/notion", recency: "May 2025" },
+      { text: "New Tokyo and London offices opened as part of EMEA and APAC enterprise expansion.", source: "https://notion.so/about", recency: "2025" },
+      { text: "Notion AI launched with deep integration across docs, databases, and projects. Enterprise tier released.", source: "https://notion.so/product/ai", recency: "2025" }
+    ],
+    contacts: [
+      { name: "Akshay Kothari", title: "COO", linkedin: "https://linkedin.com/in/akshaykothari" },
+      { name: "Ivan Zhao", title: "CEO & Co-founder", linkedin: "https://linkedin.com/in/ivanzhao" }
+    ],
+    techStack: [
+      { category: "Analytics", vendor: "Amplitude + Internal", isGap: true },
+      { category: "Cloud", vendor: "AWS", isGap: false },
+      { category: "CRM", vendor: "Salesforce", isGap: false }
+    ],
+    hooks: [
+      { type: "Enterprise Sales Build", text: "Building enterprise sales at Notion with a VP from Figma is a strong signal you're rethinking the GTM stack. When the sales motion changes, the tooling usually follows \u2014 what's on your evaluation list?" }
+    ]
+  },
+  "figma.com": {
+    company: "Figma", domain: "figma.com", employees: 1500,
+    whatsHappening: [
+      { text: "New CRO joined 2 months ago from Atlassian. Rebuilding enterprise go-to-market strategy post-Adobe.", source: "https://linkedin.com/in/figma-cro", recency: "January 2026" },
+      { text: "New VP of Product started 5 months ago. Leading the pivot from pure design tool to enterprise platform.", source: "https://linkedin.com/in/figma-vp-product", recency: "October 2025" },
+      { text: "Post-Adobe deal collapse: internal tool migration across enterprise functions. Evaluating new tooling for finance, HR, and ops.", source: "https://techcrunch.com/figma-adobe", recency: "January 2026" },
+      { text: "Hiring surge: 40+ roles posted, 3x Q4 velocity. Heavy focus on enterprise sales and customer success.", source: "https://figma.com/careers", recency: "February 2026" },
+      { text: "Adobe acquisition collapsed triggering PE buyout interest. Multiple firms in active discussions.", source: "https://bloomberg.com/figma", recency: "January 2026" },
+      { text: "Active vendor evaluation for HR and finance tooling post-Adobe separation. Multiple vendors in final round.", source: "https://figma.com/blog/independence", recency: "Current" },
+      { text: "Headcount grew from 1,100 to 1,500 employees. 35% growth YoY driven by enterprise expansion.", source: "https://linkedin.com/company/figma", recency: "February 2026" },
+      { text: "FigJam enterprise launch and Dev Mode 2.0 release. Platform expanding beyond design.", source: "https://figma.com/blog", recency: "November 2025" },
+      { text: "New Tokyo and London offices opened in 2025. Geographic expansion into APAC and EMEA enterprise markets.", source: "https://figma.com/about", recency: "2025" }
+    ],
+    contacts: [
+      { name: "Dylan Field", title: "CEO & Co-founder", linkedin: "https://linkedin.com/in/dylanfield" }
+    ],
+    techStack: [
+      { category: "Cloud", vendor: "AWS + GCP", isGap: false },
+      { category: "Internal Tools", vendor: "In transition (post-Adobe)", isGap: true },
+      { category: "CRM", vendor: "Salesforce", isGap: false }
+    ],
+    hooks: [
+      { type: "Post-Adobe Transition", text: "With a new CRO from Atlassian and a VP Product driving the enterprise pivot, Figma is clearly in an evaluation window. What does the internal tooling roadmap look like post-Adobe?" },
+      { type: "Enterprise Hiring Surge", text: "40+ new roles and 3x hiring velocity in Q1 \u2014 that's not backfill, that's a strategic build. Are you evaluating GTM tooling to match the new enterprise motion?" }
+    ]
+  },
+  "salesforce.com": {
+    company: "Salesforce", domain: "salesforce.com", employees: 72000,
+    whatsHappening: [
+      { text: "New VP of AI Platform hired from Google DeepMind in November 2025. Leading Agentforce technical strategy.", source: "https://linkedin.com/company/salesforce", recency: "November 2025" },
+      { text: "No detected tech migrations. Salesforce IS the enterprise stack \u2014 they build, not buy.", source: "https://builtwith.com/salesforce.com", recency: "Current" },
+      { text: "Hiring enterprise AE and solutions engineering roles for Agentforce go-to-market. 50+ roles globally.", source: "https://salesforce.com/careers", recency: "February 2026" },
+      { text: "Public company (NYSE: CRM). $34.9B annual revenue with 11% YoY growth.", source: "https://investor.salesforce.com", recency: "January 2026" },
+      { text: "Expanding APAC presence with new Singapore engineering hub and Tokyo enterprise sales office.", source: "https://salesforce.com/company", recency: "2025" },
+      { text: "Agentforce platform launched — autonomous AI agents for enterprise. Biggest product bet since Lightning.", source: "https://salesforce.com/agentforce", recency: "January 2026" }
+    ],
+    contacts: [
+      { name: "Marc Benioff", title: "CEO", linkedin: "https://linkedin.com/in/marcbenioff" }
+    ],
+    techStack: [
+      { category: "CRM", vendor: "Salesforce (own platform)", isGap: false },
+      { category: "Cloud", vendor: "Salesforce Cloud + AWS", isGap: false },
+      { category: "AI", vendor: "Einstein AI", isGap: false }
+    ],
+    hooks: [
+      { type: "Agentforce Launch", text: "The Agentforce bet is Salesforce's biggest product move since Lightning. Curious how the data layer is evolving to support autonomous agents \u2014 are you evaluating new signal sources?" }
+    ]
+  },
+  "linear.app": {
+    company: "Linear", domain: "linear.app", employees: 80,
+    whatsHappening: [
+      { text: "Growing executive team: new VP Engineering and Head of Design hired in Q4 2025.", source: "https://linkedin.com/company/linear", recency: "November 2025" },
+      { text: "Building enterprise features: SSO, SCIM, audit logs, and advanced permissions shipped in 2025.", source: "https://linear.app/changelog", recency: "2025" },
+      { text: "Selective hiring: 8 open roles, focused on senior engineering and enterprise sales.", source: "https://linear.app/careers", recency: "February 2026" },
+      { text: "Series C ($35M) raised at $400M valuation. Well-funded for current scale.", source: "https://crunchbase.com/linear", recency: "2023" },
+      { text: "Remote-first team growing from 50 to 80 employees. 60% growth in 18 months.", source: "https://linkedin.com/company/linear", recency: "2025" }
+    ],
+    contacts: [
+      { name: "Karri Saarinen", title: "CEO & Co-founder", linkedin: "https://linkedin.com/in/karrisaarinen" }
+    ],
+    techStack: [
+      { category: "Cloud", vendor: "Vercel + AWS", isGap: false },
+      { category: "CRM", vendor: "HubSpot", isGap: false }
+    ],
+    hooks: [
+      { type: "Enterprise Push", text: "Linear's enterprise feature sprint in 2025 (SSO, SCIM, audit logs) looks like you're moving upmarket. How are you thinking about the GTM motion to match?" }
+    ]
+  },
+  "datadog.com": {
+    company: "Datadog", domain: "datadog.com", employees: 5500,
+    whatsHappening: [
+      { text: "New VP of Sales for EMEA started 3 months ago. Expanding European enterprise coverage.", source: "https://linkedin.com/company/datadog", recency: "November 2025" },
+      { text: "Expanding observability platform: acquired Cloudcraft and Seekret in 2025 for cloud architecture and API security.", source: "https://techcrunch.com/datadog", recency: "2025" },
+      { text: "Active GTM hiring: 25+ revenue roles including Strategic AEs, Solutions Engineers, and Customer Success.", source: "https://datadog.com/careers", recency: "February 2026" },
+      { text: "Strong public performance: $2.1B ARR, 29% YoY growth. Enterprise customers growing fastest.", source: "https://investor.datadoghq.com", recency: "2025" },
+      { text: "European expansion: new London and Paris offices. Growing EMEA team 40% YoY.", source: "https://datadog.com/about", recency: "2025" },
+      { text: "AI observability features launched: LLM monitoring, AI pipeline tracing, model performance tracking.", source: "https://datadog.com/blog", recency: "January 2026" }
+    ],
+    contacts: [
+      { name: "Olivier Pomel", title: "CEO & Co-founder", linkedin: "https://linkedin.com/in/olivierpomel" }
+    ],
+    techStack: [
+      { category: "Cloud", vendor: "AWS + GCP + Azure (multi-cloud)", isGap: false },
+      { category: "Observability", vendor: "Datadog (own platform)", isGap: false },
+      { category: "CRM", vendor: "Salesforce", isGap: false }
+    ],
+    hooks: [
+      { type: "AI Observability", text: "Datadog's AI observability launch (LLM monitoring, pipeline tracing) is a big bet. With 25+ revenue roles open and a new EMEA VP, you're clearly scaling the enterprise motion \u2014 how's the GTM tooling keeping up?" }
+    ]
+  },
+  "adyen.com": {
+    company: "Adyen", domain: "adyen.com", employees: 4200,
+    whatsHappening: [
+      { text: "New Chief Product Officer appointed in January 2026 from PayPal. Leading unified commerce platform strategy.", source: "https://linkedin.com/company/adyen", recency: "January 2026" },
+      { text: "Expanding North American presence with new Chicago and Toronto offices. 30+ enterprise sales hires in Q1.", source: "https://adyen.com/careers", recency: "February 2026" },
+      { text: "Embedded financial products launched: issuing, lending, and accounts for platforms. Major product expansion beyond payments.", source: "https://adyen.com/blog", recency: "November 2025" },
+      { text: "Revenue grew 22% YoY to \u20AC1.8B. Net revenue margin expanding as enterprise clients scale.", source: "https://investors.adyen.com", recency: "January 2026" },
+      { text: "Hiring surge: 45+ roles posted across engineering, enterprise sales, and solutions architecture. 3x Q4 velocity.", source: "https://adyen.com/careers", recency: "February 2026" },
+      { text: "New VP of Revenue Operations hired 6 weeks ago from Stripe. Building out RevOps function for first time.", source: "https://linkedin.com/in/adyen-vp-revops", recency: "January 2026" },
+      { text: "Amsterdam HQ expansion: new engineering campus opened to house 800+ engineers. European tech hub consolidation.", source: "https://adyen.com/about", recency: "2025" }
+    ],
+    contacts: [
+      { name: "Pieter van der Does", title: "CEO & Co-founder", linkedin: "https://linkedin.com/in/pietervanderdoes" },
+      { name: "Ingo Uytdehaage", title: "CFO", linkedin: "https://linkedin.com/in/ingouytdehaage" }
+    ],
+    techStack: [
+      { category: "Payments", vendor: "Adyen (own platform)", isGap: false },
+      { category: "Cloud", vendor: "Bare metal + private cloud", isGap: false },
+      { category: "CRM", vendor: "Salesforce", isGap: false },
+      { category: "Analytics", vendor: "Internal tooling", isGap: true }
+    ],
+    hooks: [
+      { type: "RevOps Build", text: "Building a RevOps function from scratch with a VP from Stripe is a big signal. When the GTM infrastructure is being built, the signal and data layer is usually one of the first decisions \u2014 what's on the evaluation list?" },
+      { type: "Embedded Finance Expansion", text: "The move into embedded lending and issuing is a platform play that changes your ICP. How are you thinking about account intelligence for the new buyer personas?" }
+    ]
+  },
+  "canva.com": {
+    company: "Canva", domain: "canva.com", employees: 4000,
+    whatsHappening: [
+      { text: "New Chief Revenue Officer appointed 6 weeks ago from Atlassian. Building enterprise sales org.", source: "https://linkedin.com/company/canva", recency: "January 2026" },
+      { text: "Acquired Affinity and Leonardo.ai in 2025. Integrating AI design tools and expanding platform capabilities.", source: "https://canva.com/newsroom", recency: "2025" },
+      { text: "50+ roles open across enterprise sales, solutions engineering, and customer success.", source: "https://canva.com/careers", recency: "February 2026" },
+      { text: "Valuation reached $26B at last funding. IPO rumored for 2026.", source: "https://crunchbase.com/canva", recency: "2024" },
+      { text: "Enterprise tier (Canva Enterprise) launched with advanced brand management, SSO, and approval workflows.", source: "https://canva.com/enterprise", recency: "2025" },
+      { text: "Headcount grew from 3,000 to 4,000 in 2025. 33% growth driven by enterprise push.", source: "https://linkedin.com/company/canva", recency: "2025" }
+    ],
+    contacts: [
+      { name: "Melanie Perkins", title: "CEO & Co-founder", linkedin: "https://linkedin.com/in/melanieperkins" }
+    ],
+    techStack: [
+      { category: "Cloud", vendor: "AWS", isGap: false },
+      { category: "CRM", vendor: "Salesforce", isGap: false },
+      { category: "AI", vendor: "Leonardo.ai (acquired)", isGap: false }
+    ],
+    hooks: [
+      { type: "Enterprise Build", text: "New CRO from Atlassian, 50+ revenue hires, and an enterprise tier launch \u2014 Canva is going upmarket fast. What does the sales intelligence stack look like for the new enterprise motion?" }
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// SIGNAL SCORE COMPUTATION
+// ═══════════════════════════════════════════════════════
+const CATEGORY_MAX = { leadership: 20, hiring: 15, techStack: 20, financial: 15, expansion: 15, market: 15 };
+const CATEGORY_LABELS = { leadership: "Leadership", hiring: "Hiring", techStack: "Tech Stack", financial: "Financial", expansion: "Expansion", market: "Market" };
+
+function classifySignal(text) {
+  const t = text.toLowerCase();
+  // Negative/stable signals — MUST check before positive patterns to avoid false positives
+  if (/\bno\b.*migrat|\bnot\b.*migrat|don'?t.*migrat|no.*detected.*migrat/.test(t))
+    return { category: "market", label: "Stable Activity", basePoints: 1 };
+  if (/\bnot a surge\b|\bnormal\b.*hiring|\bnormal\b.*pattern|\broutine\b.*for/.test(t))
+    return { category: "market", label: "Stable Activity", basePoints: 1 };
+  if (/\broutine\b.*acquis|\bbusiness.as.usual\b/.test(t))
+    return { category: "market", label: "Stable Activity", basePoints: 1 };
+  // Leadership
+  if (/new c[eofrt][oefo]|appointed.*c-suite|joined as c|new cmo|new coo/.test(t))
+    return { category: "leadership", label: "C-Suite Change", basePoints: 12 };
+  if (/new vp|vp of|new head of|joined as vp|appointed.*vp|hired as vp|new chief revenue/.test(t))
+    return { category: "leadership", label: "Leadership Change", basePoints: 10 };
+  if (/new director|director of/.test(t))
+    return { category: "leadership", label: "New Director", basePoints: 6 };
+  // Tech Stack
+  if (/migration|migrating|switching from|replacing|transitioning.*to|moving away|removed.*detected|tags.*removed/.test(t))
+    return { category: "techStack", label: "Tech Migration", basePoints: 14 };
+  if (/rfp|vendor evaluation|evaluating.*platform|exploring alternatives/.test(t))
+    return { category: "techStack", label: "Vendor Evaluation", basePoints: 10 };
+  if (/fragment|multiple.*tools|dual.*environment|amplitude.*mixpanel|parallel/.test(t))
+    return { category: "techStack", label: "Stack Fragmentation", basePoints: 8 };
+  if (/adopted|implemented|deployed|rolled out|started using|new tool|launched.*platform/.test(t))
+    return { category: "techStack", label: "New Tool Adoption", basePoints: 6 };
+  if (/legacy|deprecated|end.of.life|sunset/.test(t))
+    return { category: "techStack", label: "Legacy Stack", basePoints: 4 };
+  // Hiring
+  if (/hiring surge|3x.*hiring|hiring.*increase|3x.*velocity|\d+\+ roles|40\+ roles|50\+ roles/.test(t))
+    return { category: "hiring", label: "Hiring Surge", basePoints: 10 };
+  if (/hiring.*sdr|hiring.*ae|hiring.*revops|hiring.*sales|revenue roles|gtm roles|enterprise sales/.test(t))
+    return { category: "hiring", label: "GTM Hiring", basePoints: 8 };
+  if (/hiring|recruiting|open role|job post|roles.*posted|actively hiring|careers/.test(t))
+    return { category: "hiring", label: "Hiring Activity", basePoints: 5 };
+  // Financial
+  if (/acquired by|pe buyout|private equity|bought by|taken private|acquired.*in/.test(t))
+    return { category: "financial", label: "Acquisition/PE", basePoints: 12 };
+  if (/series [a-i]|funding round|raised \$|raised.*million|valuation|\$\d+[mb]/.test(t))
+    return { category: "financial", label: "Funding Round", basePoints: 10 };
+  if (/ipo|went public|public listing|ipo rumor/.test(t))
+    return { category: "financial", label: "IPO Signal", basePoints: 8 };
+  if (/revenue|\$\d+b|arr |contract win|strong.*performance/.test(t))
+    return { category: "financial", label: "Revenue Signal", basePoints: 5 };
+  // Expansion
+  if (/new.*country|expanding to|entering.*market|international.*expansion|emea|apac/.test(t))
+    return { category: "expansion", label: "Geo Expansion", basePoints: 8 };
+  if (/\d+%.*growth|headcount.*grew|employees.*from.*to|yoy.*growth|grew from/.test(t))
+    return { category: "expansion", label: "Headcount Growth", basePoints: 8 };
+  if (/new office|new location|opened.*office|new.*hub|london.*office|tokyo.*office|dublin.*hub/.test(t))
+    return { category: "expansion", label: "New Office", basePoints: 6 };
+  if (/multi-entity|multiple.*location|\d+ offices|30\+ countries/.test(t))
+    return { category: "expansion", label: "Multi-Entity", basePoints: 3 };
+  // Market Activity
+  if (/restructur|reorg|layoff|reduction in force|post-.*collapse/.test(t))
+    return { category: "market", label: "Restructuring", basePoints: 8 };
+  if (/launch|new product|released.*feature|announced.*platform|figjam|dev mode|billing v3|breeze ai|agentforce|notion ai|enterprise tier/.test(t))
+    return { category: "market", label: "Product Launch", basePoints: 6 };
+  if (/partner|strategic alliance|integration with|acquir/.test(t))
+    return { category: "market", label: "Partnership/M&A", basePoints: 5 };
+  if (/negative.*review|complaint|trustpilot|glassdoor.*rating/.test(t))
+    return { category: "market", label: "Review Signal", basePoints: 4 };
+  if (/conference|speaking at|sponsor/.test(t))
+    return { category: "market", label: "Event Activity", basePoints: 3 };
+  // Fallback
+  if (/\bmodest\b|\bstable\b/.test(t))
+    return { category: "market", label: "Stable Activity", basePoints: 1 };
+  return { category: "market", label: "Activity Signal", basePoints: 3 };
+}
+
+function getRecencyMultiplier(signal) {
+  if (!signal.recency) return 0.6;
+  const r = signal.recency.toLowerCase();
+  if (/current|ongoing|february 2026|jan(uary)? 2026|feb 2026/.test(r)) return 1.0;
+  if (/december 2025|november 2025|october 2025|q4 2025/.test(r)) return 0.9;
+  if (/september 2025|august 2025|july 2025|q3 2025/.test(r)) return 0.8;
+  if (/june 2025|may 2025|april 2025|q2 2025/.test(r)) return 0.7;
+  if (/2025/.test(r)) return 0.8; // Generic "2025" = avg ~6 months old
+  if (/2024/.test(r)) return 0.4;
+  if (/2023/.test(r)) return 0.2;
+  if (/2021|2022/.test(r)) return 0;
+  return 0.6;
+}
+
+function computeSignalScore(data) {
+  const scores = { leadership: 0, hiring: 0, techStack: 0, financial: 0, expansion: 0, market: 0 };
+  const breakdown = [];
+
+  for (const wh of data.whatsHappening) {
+    const cls = classifySignal(wh.text);
+    const recency = getRecencyMultiplier(wh);
+    let points = Math.round(cls.basePoints * recency);
+    const cat = cls.category;
+    if (scores[cat] + points > CATEGORY_MAX[cat]) {
+      points = CATEGORY_MAX[cat] - scores[cat];
+    }
+    if (points > 0) {
+      scores[cat] += points;
+      breakdown.push({ category: cat, label: cls.label, points, text: wh.text.substring(0, 80) });
+    }
+  }
+
+  let total = Object.values(scores).reduce((a, b) => a + b, 0);
+  const signalCount = data.whatsHappening.length;
+
+  // Edge cases
+  if (signalCount === 0) return { score: 10, breakdown: [], scores };
+  if (signalCount === 1) total = Math.min(total, 35);
+  if (signalCount === 2) total = Math.min(total, 50);
+
+  // Size modifier
+  if (data.employees && data.employees < 50 && data.employees > 0) {
+    total = Math.min(100, Math.round(total * 1.15));
+  }
+
+  return { score: Math.max(0, Math.min(100, total)), breakdown: breakdown.sort((a, b) => b.points - a.points), scores };
+}
+
+// ═══════════════════════════════════════════════════════
+// INTERACTIVE DEMO
+// ═══════════════════════════════════════════════════════
+const demoInput = document.getElementById('demo-input');
+const demoBtn = document.getElementById('demo-btn');
+const demoResults = document.getElementById('demo-results');
+const demoScoreArea = document.getElementById('demo-score-area');
+const demoScoreNumber = document.getElementById('demo-score-number');
+const demoScoreRing = document.getElementById('demo-score-ring');
+const demoScoreLimited = document.getElementById('demo-score-limited');
+const demoScoreChips = document.getElementById('demo-score-chips');
+const demoConversion = document.getElementById('demo-conversion');
+const demoPermalink = document.getElementById('demo-permalink');
+const demoDashboardPrompt = document.getElementById('demo-dashboard-prompt');
+
+demoInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') runDemo();
+});
+
+function normalizeDomain(input) {
+  let d = input.trim().toLowerCase();
+  d = d.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+  return d;
+}
+
+function getScoreTierColor(score) {
+  if (score <= 30) return '#666';
+  if (score <= 50) return '#5B8DEF';
+  if (score <= 70) return '#E8A838';
+  if (score <= 85) return '#F5A623';
+  return '#E84338';
+}
+
+function showToast(message) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.setAttribute('role', 'status');
+  t.setAttribute('aria-live', 'polite');
+  t.textContent = message;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('visible'));
+  setTimeout(() => { t.classList.remove('visible'); setTimeout(() => t.remove(), 300); }, 2300);
+}
+
+function showConversionFlow(domain) {
+  demoConversion.innerHTML = '';
+  demoConversion.classList.add('visible');
+
+  const scanQuestions = [
+    'Leadership changes at ' + domain + '...',
+    'Tech stack detection for ' + domain + '...',
+    'Hiring activity at ' + domain + '...',
+    'Funding & financial signals for ' + domain + '...'
+  ];
+
+  let scanHtml = '<div class="fallback-scan-log" id="fallback-scan">';
+  scanQuestions.forEach((q, i) => {
+    scanHtml += '<div class="fallback-scan-line" id="scan-line-' + i + '"><span class="log-method">POST</span> /v1/companies/signals/sync <span style="color:var(--dim)">"' + q + '"</span></div>';
+  });
+  scanHtml += '</div>';
+  demoConversion.innerHTML = scanHtml;
+
+  scanQuestions.forEach((_, i) => {
+    setTimeout(() => {
+      const line = document.getElementById('scan-line-' + i);
+      if (line) {
+        line.classList.add('visible');
+        setTimeout(() => line.classList.add('complete'), 400);
+      }
+    }, 400 + i * 500);
+  });
+
+  setTimeout(() => {
+    demoConversion.innerHTML =
+      '<div class="fallback-form">' +
+      '<h3>We don\'t have cached signals for ' + escapeHtml(domain) + ' yet.</h3>' +
+      '<p>But we can research it. In about 20 minutes, you\'ll have a full signal report with sources — free, no strings.</p>' +
+      '<div class="fallback-input-row">' +
+      '<input type="email" id="fallback-email" placeholder="your@email.com" aria-label="Your email">' +
+      '<button onclick="submitFallbackEmail(\'' + escapeHtml(domain) + '\')">Research ' + escapeHtml(domain) + '</button>' +
+      '</div>' +
+      '<div class="fallback-subtitle">We\'ll run 17 research questions against ' + escapeHtml(domain) + ' and email you the full report.</div>' +
+      '</div>';
+  }, 400 + scanQuestions.length * 500 + 600);
+}
+
+function submitFallbackEmail(domain) {
+  const input = document.getElementById('fallback-email');
+  if (!input || !input.value || !input.value.includes('@')) {
+    input.style.borderColor = 'var(--red)';
+    return;
+  }
+  demoConversion.querySelector('.fallback-form').innerHTML =
+    '<div class="fallback-confirmation">We\'ll email your signal report for ' + escapeHtml(domain) + ' within 20 minutes.</div>';
+  showToast('Signal research queued for ' + domain);
+}
+
+function runDemo() {
+  const domain = normalizeDomain(demoInput.value || 'stripe.com');
+  if (!domain || !domain.includes('.')) return;
+
+  demoInput.value = domain;
+  currentDemoDomain = domain;
+  demoBtn.disabled = true;
+  demoBtn.textContent = 'Running...';
+  demoBtn.classList.add('pulse');
+
+  // Reset
+  demoResults.innerHTML = '';
+  demoScoreArea.classList.remove('visible');
+  demoScoreChips.innerHTML = '';
+  demoConversion.classList.remove('visible');
+  demoConversion.innerHTML = '';
+  demoPermalink.classList.remove('visible');
+  demoPermalink.innerHTML = '';
+  demoDashboardPrompt.classList.remove('visible');
+  demoScoreRing.style.strokeDashoffset = '339.29';
+  demoScoreNumber.textContent = '0';
+  demoScoreLimited.style.display = 'none';
+
+  const data = DEMO_DATA[domain];
+
+  setTimeout(() => {
+    demoBtn.disabled = false;
+    demoBtn.textContent = 'Run Signals';
+    demoBtn.classList.remove('pulse');
+
+    if (!data) {
+      showConversionFlow(domain);
+      return;
+    }
+
+    // Compute score
+    const result = computeSignalScore(data);
+    const { score, breakdown } = result;
+    const tierColor = getScoreTierColor(score);
+    const signalCount = data.whatsHappening.length;
+
+    // Show score area
+    demoScoreArea.classList.add('visible');
+
+    // Animate score number + ring
+    animateScore(demoScoreNumber, score, 800, tierColor);
+    setTimeout(() => {
+      const offset = 339.29 * (1 - score / 100);
+      demoScoreRing.style.strokeDashoffset = offset;
+      demoScoreRing.style.stroke = tierColor;
+    }, 100);
+    demoScoreNumber.setAttribute('aria-valuenow', score);
+
+    // Limited data asterisk
+    if (signalCount <= 2) {
+      demoScoreLimited.style.display = 'block';
+      demoScoreLimited.textContent = '* Limited public data available. Score may increase with more signals.';
+    }
+
+    // Show breakdown chips (600ms stagger)
+    breakdown.forEach((chip, i) => {
+      const el = document.createElement('div');
+      el.className = 'score-chip active';
+      el.textContent = chip.label + ' +' + chip.points;
+      el.title = chip.text;
+      demoScoreChips.appendChild(el);
+      setTimeout(() => el.classList.add('visible'), 400 + i * 600);
+    });
+
+    // Build signal cards
+    const cards = [];
+
+    // Narrative card
+    cards.push({ type: 'narrative', label: 'Why This Matters', body: buildNarrative(data), classes: 'signal-card narrative' });
+
+    // Signal cards
+    for (const wh of data.whatsHappening) {
+      const cls = classifySignal(wh.text);
+      const sourceHost = extractHost(wh.source);
+      cards.push({
+        type: 'signal', label: cls.label, body: wh.text,
+        source: wh.source, sourceHost,
+        classes: 'signal-card',
+        category: cls.category
+      });
+    }
+
+    // ALL hook cards (not just first)
+    if (data.hooks && data.hooks.length > 0) {
+      for (const hook of data.hooks) {
+        cards.push({
+          type: 'hook', label: 'Outreach Hook', body: hook.text,
+          classes: 'signal-card hook-card',
+          hookType: hook.type
+        });
+      }
+    }
+
+    // Insert prospect CTA after 3rd signal card position
+    const ctaInsertIndex = Math.min(4, cards.length); // after narrative + 3 signal cards
+
+    // Render signal cards with stagger
+    let ctaInserted = false;
+    let extraOffset = 0;
+    for (let i = 0; i < cards.length; i++) {
+      // Insert prospect CTA inline after ~3 signal cards
+      if (i === ctaInsertIndex && !ctaInserted) {
+        const ctaEl = document.createElement('div');
+        ctaEl.className = 'prospect-cta';
+        ctaEl.innerHTML =
+          '<h3>Want us to find prospects like this for your business?</h3>' +
+          '<div class="cta-sub">We\'ll find companies showing live buying signals matched to your ICP — and send you the first batch free.</div>' +
+          '<div class="fallback-input-row" style="max-width:440px">' +
+          '<input type="email" placeholder="your@email.com" aria-label="Your email">' +
+          '<button onclick="showToast(\'We\\\'ll be in touch with your first signal report.\');this.closest(\'.prospect-cta\').innerHTML=\'<h3 style=margin:0>We\\\'ll be in touch.</h3>\'">Find My Prospects</button>' +
+          '</div>';
+        demoResults.appendChild(ctaEl);
+        setTimeout(() => ctaEl.classList.add('visible'), 600 + i * 800);
+        ctaInserted = true;
+        extraOffset = 1;
+      }
+
+      const c = cards[i];
+      const el = document.createElement('div');
+      el.className = c.classes;
+      if (c.category) el.setAttribute('data-category', c.category);
+
+      let typeColor = c.type === 'hook' ? 'color:#4ade80' : '';
+      let html = '<div class="signal-type" style="' + typeColor + '">' + escapeHtml(c.label) + '</div>';
+      html += '<div class="signal-body">' + escapeHtml(c.body) + '</div>';
+      if (c.source) {
+        html += '<div class="signal-source">source: <a href="' + escapeHtml(c.source) + '" target="_blank" rel="noopener">' + escapeHtml(c.sourceHost) + '</a></div>';
+      }
+      if (c.type === 'hook' && c.hookType) {
+        html += '<div class="signal-source">based on: ' + escapeHtml(c.hookType) + ' signal</div>';
+      }
+      el.innerHTML = html;
+      demoResults.appendChild(el);
+      setTimeout(() => el.classList.add('visible'), 600 + (i + extraOffset) * 800);
+    }
+
+    // After signal cards: render tech stack section
+    if (data.techStack && data.techStack.length > 0) {
+      const techEl = document.createElement('div');
+      techEl.className = 'techstack-section';
+      let tHtml = '<div class="techstack-heading">Tech Stack</div>';
+      for (const ts of data.techStack) {
+        tHtml += '<div class="techstack-row">';
+        tHtml += '<div class="techstack-cat">' + escapeHtml(ts.category) + '</div>';
+        tHtml += '<div class="techstack-vendor">' + escapeHtml(ts.vendor) + '</div>';
+        if (ts.isGap) tHtml += '<span class="techstack-gap">Gap</span>';
+        tHtml += '</div>';
+      }
+      techEl.innerHTML = tHtml;
+      demoResults.appendChild(techEl);
+      setTimeout(() => techEl.classList.add('visible'), 600 + (cards.length + extraOffset) * 800 + 200);
+    }
+
+    // Show permalink after all cards
+    const totalDelay = 600 + (cards.length + extraOffset) * 800 + 600;
+    setTimeout(() => {
+      // Permalink bar
+      demoPermalink.innerHTML =
+        '<span class="permalink-url">signals.saber.app/run/' + escapeHtml(domain) + '</span>' +
+        '<button class="permalink-copy" onclick="navigator.clipboard.writeText(\'signals.saber.app/run/' + escapeHtml(domain) + '\');showToast(\'Link copied to clipboard\')">Copy</button>';
+      demoPermalink.classList.add('visible');
+    }, totalDelay);
+
+  }, 800); // Simulated loading delay
+}
+
+function buildNarrative(data) {
+  const result = computeSignalScore(data);
+  const topSignals = result.breakdown.slice(0, 3).map(b => b.label).join(', ');
+  return data.company + ' shows ' + result.breakdown.length + ' active signal categories including ' + topSignals + '. Signal Score ' + result.score + '/100 indicates ' + (result.score >= 70 ? 'strong buying activity' : result.score >= 50 ? 'moderate activity worth monitoring' : 'low current activity') + '. ' + (data.whatsHappening.length) + ' verified signals with sources.';
+}
+
+function extractHost(url) {
+  try {
+    return new URL(url).hostname.replace('www.', '');
+  } catch { return url; }
+}
+
+function animateScore(el, target, duration, color) {
+  const start = performance.now();
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const val = Math.round(target * eased);
+    el.textContent = val;
+    if (color) el.style.color = color;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ═══════════════════════════════════════════════════════
+// SOCIAL PROOF — Pre-built signal run cards
+// ═══════════════════════════════════════════════════════
+const proofGrid = document.getElementById('proof-grid');
+const proofCompanies = ['figma.com', 'datadog.com', 'canva.com', 'linear.app'];
+proofCompanies.forEach(domain => {
+  const data = DEMO_DATA[domain];
+  if (!data) return;
+  const result = computeSignalScore(data);
+  const topSignals = result.breakdown.slice(0, 3);
+  const scoreColor = result.score >= 70 ? 'var(--orange)' : result.score >= 50 ? 'rgba(245,166,35,0.7)' : 'var(--dim)';
+
+  let html = '<div class="proof-card" data-animate>';
+  html += '<div class="proof-card-header">';
+  html += '<img class="proof-card-logo" src="https://www.google.com/s2/favicons?domain=' + encodeURIComponent(domain) + '&sz=64" width="36" height="36" style="border-radius:8px;background:var(--surface2)">';
+  html += '<div><div class="proof-card-company">' + escapeHtml(data.company) + '</div><div class="proof-card-domain">' + escapeHtml(domain) + '</div></div>';
+  html += '</div>';
+  html += '<div class="proof-card-score" style="color:' + scoreColor + '">' + result.score + '<span style="font-size:16px;color:var(--dim);font-weight:400">/100</span></div>';
+  html += '<ul class="proof-card-signals">';
+  topSignals.forEach(s => {
+    html += '<li>' + escapeHtml(s.label) + ' +' + s.points + '</li>';
+  });
+  html += '</ul></div>';
+  proofGrid.innerHTML += html;
+});
+
+// ═══════════════════════════════════════════════════════
+// MOBILE NAV
+// ═══════════════════════════════════════════════════════
+const navHamburger = document.getElementById('nav-hamburger');
+const navMobileMenu = document.getElementById('nav-mobile-menu');
+
+function closeMobileMenu() {
+  navMobileMenu.classList.remove('open');
+  navHamburger.classList.remove('open');
+}
+
+navHamburger.addEventListener('click', () => {
+  navMobileMenu.classList.toggle('open');
+  navHamburger.classList.toggle('open');
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMobileMenu();
+});
+
+navMobileMenu.addEventListener('click', (e) => {
+  if (e.target === navMobileMenu) closeMobileMenu();
+});
+
+// ═══════════════════════════════════════════════════════
+// AUTO-RUN STRIPE ON LOAD
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (!demoInput.value) demoInput.value = 'stripe.com';
+    runDemo();
+  }, 300);
+});
+
+// ═══════════════════════════════════════════════════════
+// DESIGN EFFECTS
+// ═══════════════════════════════════════════════════════
+
+// A. Scroll-triggered entrances (data-animate elements)
+const scrollObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      scrollObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('[data-animate]').forEach(el => scrollObserver.observe(el));
+
+// B. Comparison column stagger (left first, right 200ms later)
+const compObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const left = e.target.querySelector('.comp-left');
+      const right = e.target.querySelector('.comp-right');
+      if (left) left.classList.add('visible');
+      if (right) setTimeout(() => right.classList.add('visible'), 200);
+      compObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+const compGrid = document.querySelector('.comparison-grid');
+if (compGrid) compObserver.observe(compGrid);
+
+// C. Cursor spotlight (desktop only, hero only)
+if (!('ontouchstart' in window)) {
+  const hero = document.querySelector('.hero');
+  const spotlight = document.querySelector('.hero-spotlight');
+  if (hero && spotlight) {
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      spotlight.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+      spotlight.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+    });
+  }
+}
+</script>
+
+<!-- ═══════ DESIGN LIBRARIES ═══════ -->
+
+<!-- Film grain texture (2KB) -->
+<script src="https://cdn.jsdelivr.net/npm/grained@0.0.2/grained.min.js"></script>
+<script>
+(function() {
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reducedMotion) {
+    grained('#grain-overlay', {
+      animate: true, patternWidth: 100, patternHeight: 100,
+      grainOpacity: isMobile ? 0.02 : 0.04,
+      grainDensity: 1, grainWidth: 1, grainHeight: 1
+    });
+  }
+})();
+</script>
+
+<!-- tsParticles (hero only, ~25KB) -->
+<script src="https://cdn.jsdelivr.net/npm/@tsparticles/slim@3.0.0/tsparticles.slim.bundle.min.js"></script>
+<script>
+(function() {
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reducedMotion) return;
+  if (typeof tsParticles !== 'undefined') {
+    tsParticles.load({
+      id: 'hero-particles',
+      options: {
+        fullScreen: { enable: false },
+        fpsLimit: 60,
+        interactivity: {
+          events: { onHover: { enable: !isMobile, mode: 'grab' }, resize: true },
+          modes: { grab: { distance: 120, links: { opacity: 0.6 } } }
+        },
+        particles: {
+          color: { value: '#F5A623' },
+          links: { color: '#F5A623', distance: 140, enable: true, opacity: 0.12, width: 1 },
+          move: { enable: true, speed: 0.6, outModes: { default: 'bounce' } },
+          number: { density: { enable: true, area: 800 }, value: isMobile ? 20 : 50 },
+          opacity: { value: 0.3 },
+          shape: { type: 'circle' },
+          size: { value: { min: 1, max: 2 } }
+        },
+        detectRetina: true
+      }
+    });
+  }
+})();
+</script>
+
+<!-- Hero text reveal (Motion + SplitType) -->
+<script src="https://cdn.jsdelivr.net/npm/split-type@latest/umd/index.min.js"></script>
+<script type="module">
+import { animate, stagger } from 'https://esm.sh/motion@11';
+
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!reducedMotion) {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  // Eyebrow fade
+  const eyebrow = document.querySelector('.hero .eyebrow');
+  if (eyebrow) {
+    eyebrow.style.opacity = '0';
+    animate(eyebrow, { opacity: [0, 1] }, { duration: 0.4, easing: 'ease-out' });
+  }
+
+  // H1 character/word reveal
+  const h1 = document.querySelector('.hero h1');
+  if (h1 && typeof SplitType !== 'undefined') {
+    const split = new SplitType(h1, { types: isMobile ? 'words' : 'words, chars' });
+    const targets = isMobile ? split.words : split.chars;
+    if (targets && targets.length) {
+      targets.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(8px)'; });
+      animate(
+        targets,
+        { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0)'] },
+        { delay: stagger(isMobile ? 0.03 : 0.02), duration: 0.4, easing: 'ease-out', offset: 0.2 }
+      );
+    }
+  }
+
+  // Subhead word reveal
+  const subhead = document.querySelector('.hero p');
+  if (subhead && typeof SplitType !== 'undefined') {
+    const splitSub = new SplitType(subhead, { types: 'words' });
+    if (splitSub.words && splitSub.words.length) {
+      splitSub.words.forEach(el => { el.style.opacity = '0'; });
+      setTimeout(() => {
+        animate(
+          splitSub.words,
+          { opacity: [0, 1] },
+          { delay: stagger(0.03), duration: 0.3, easing: 'ease-out', offset: 1.0 }
+        );
+      }, 600);
+    }
+  }
+}
+</script>
+
+</body>
+</html>
