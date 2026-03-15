@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Job Search — Abdur Rab</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #1e3a5f;
+      --mid:    #2c5282;
+      --light:  #eef2f7;
+      --border: #c8d4e3;
+      --text:   #1a1a1a;
+      --muted:  #4a5568;
+      --green:  #276749;
+      --green-bg: #f0fff4;
+      --green-border: #9ae6b4;
+    }
+
+    html { font-size: 11pt; }
+
+    body {
+      font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+      color: var(--text);
+      background: #f7f9fc;
+      line-height: 1.6;
+    }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 2px 24px rgba(30,58,95,0.08);
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: var(--navy);
+      padding: 52px 56px 44px;
+      color: #fff;
+    }
+
+    .cover-label {
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #a0b8d8;
+      margin-bottom: 18px;
+    }
+
+    .cover-name {
+      font-size: 32pt;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .cover-sub {
+      font-size: 11.5pt;
+      color: #a0b8d8;
+      font-weight: 400;
+      margin-bottom: 32px;
+    }
+
+    .cover-intro {
+      font-size: 11.5pt;
+      color: #d4e2f0;
+      line-height: 1.65;
+      max-width: 620px;
+      border-left: 3px solid #4a7fb5;
+      padding-left: 20px;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .section {
+      padding: 44px 56px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 22px;
+      padding-bottom: 8px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    /* ── PROCESS STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 20px; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      background: var(--navy);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10pt;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .step-body {}
+
+    .step-title {
+      font-size: 11pt;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .step-desc {
+      font-size: 10.5pt;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── SCHEDULE BADGE ── */
+    .schedule-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 16px;
+      font-size: 10pt;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    /* ── WHAT YOU'LL EXPERIENCE ── */
+    .callout {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+      border-left: 4px solid var(--green);
+      border-radius: 4px;
+      padding: 18px 22px;
+      margin-top: 24px;
+    }
+
+    .callout-title {
+      font-size: 10pt;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+
+    .callout-text {
+      font-size: 10.5pt;
+      color: #2d4a2d;
+      line-height: 1.6;
+    }
+
+    /* ── DIVIDER WITH LABEL ── */
+    .doc-divider {
+      background: var(--navy);
+      padding: 20px 56px;
+      color: #a0b8d8;
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── CV + COVER LETTER EMBED ── */
+    .doc-embed {
+      padding: 40px 56px;
+      background: #f0f4f8;
+    }
+
+    .doc-embed-inner {
+      background: #fff;
+      box-shadow: 0 1px 8px rgba(30,58,95,0.10);
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; }
+      .section { padding: 32px 40px; }
+      .cover { padding: 40px; }
+      .doc-embed { padding: 24px 40px; background: #fff; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-label">Job Search — Prepared by Rehman</div>
+    <div class="cover-name">Abdur Rab</div>
+    <div class="cover-sub">Senior Contracts &amp; Procurement Professional &nbsp;·&nbsp; Adelaide</div>
+    <p class="cover-intro">
+      This document explains what has been set up for your job search, how it works,
+      and what you should expect going forward. Your CV and cover letter are included
+      at the end. You do not need to do anything — the system runs automatically.
+    </p>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-label">How it works</div>
+
+    <div class="schedule-row">
+      <div class="badge">Every Monday</div>
+      <div class="badge">Every Wednesday</div>
+      <div class="badge">Every Friday</div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-body">
+          <div class="step-title">Scans the market automatically</div>
+          <div class="step-desc">
+            Every Monday, Wednesday and Friday, the system searches SEEK and other job platforms
+            for contracts administrator, procurement manager, subcontracts manager, commercial manager
+            and related roles across Adelaide and Perth. Every relevant posting in the market is captured.
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-body">
+          <div class="step-title">Filters out everything that is not right for you</div>
+          <div class="step-desc">
+            Each role is reviewed automatically against your background. Residential construction,
+            retail procurement, IT roles, roles requiring citizenship or security clearance,
+            and roles outside SA and WA are all filtered out. Only roles that genuinely match
+            your experience and target level move forward.
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-body">
+          <div class="step-title">Tailors your CV and cover letter to each role</div>
+          <div class="step-desc">
+            For every role that passes, your CV is adjusted so the most relevant parts of your
+            background appear first — no changes to the content, just the right experience
+            leading for that specific job. A cover letter is generated at the same time,
+            written specifically for that role and company.
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-body">
+          <div class="step-title">Applies on your behalf</div>
+          <div class="step-desc">
+            The system submits the application automatically — uploading your tailored CV and
+            cover letter, and filling in all standard screening questions (right to work,
+            notice period, salary expectations, software experience) using your details.
+            This happens whether the role is advertised directly on SEEK or through a
+            company's own application system.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">What you will experience</div>
+      <div class="callout-text">
+        Interview invitations will start arriving to rab007@gmail.com. That is the first point
+        where you need to be involved — accept, prepare, show up. The system applies consistently
+        in the background. The civil construction and infrastructure procurement market in Adelaide
+        and Perth is not large, typically 3 to 5 genuinely relevant roles per week across both
+        cities. The system will catch all of them and every application that goes out will be
+        properly tailored to that specific role.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- CV DIVIDER -->
+  <div class="doc-divider">Section 2 &nbsp;·&nbsp; Your CV</div>
+
+  <div class="doc-embed">
+    <div class="doc-embed-inner">
+      <style>
+        /* CV styles scoped inside .cv-doc */
+        .cv-doc { *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 10.5pt;
+    }
+
+    body {
+      font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #ffffff;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 14mm 18mm 14mm 18mm;
+    }
+
+    /* ── HEADER ──────────────────────────────────────── */
+    .cv-header {
+      border-left: 4px solid #1e3a5f;
+      padding-left: 14px;
+      margin-bottom: 18px;
+    }
+
+    .cv-name {
+      font-size: 26pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .cv-title {
+      font-size: 10pt;
+      font-weight: 600;
+      color: #2c5282;
+      margin-top: 5px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .cv-contact {
+      margin-top: 9px;
+      font-size: 9.5pt;
+      color: #4a5568;
+      line-height: 1.9;
+    }
+
+    .cv-contact a {
+      color: #2c5282;
+      text-decoration: none;
+    }
+
+    .cv-contact .sep {
+      margin: 0 10px;
+      color: #c8d4e3;
+    }
+
+    .visa-badge {
+      display: inline-block;
+      background: #eef2f7;
+      color: #1e3a5f;
+      font-size: 8.5pt;
+      font-weight: 600;
+      padding: 1px 8px;
+      border-radius: 3px;
+      border: 1px solid #c8d4e3;
+      vertical-align: middle;
+    }
+
+    /* ── SECTIONS ────────────────────────────────────── */
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid #1e3a5f;
+      margin-bottom: 10px;
+    }
+
+    /* ── SUMMARY ─────────────────────────────────────── */
+    .summary-text {
+      font-size: 10.5pt;
+      color: #2d2d2d;
+      line-height: 1.55;
+    }
+
+    /* ── COMPETENCIES ────────────────────────────────── */
+    /* ATS reads as flat list. Visually appears as 2 cols via inline-block. */
+    .competencies-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0; /* collapse inline-block whitespace */
+    }
+
+    .competencies-list li {
+      display: inline-block;
+      font-size: 9.5pt;
+      color: #2d2d2d;
+      padding: 2.5px 0;
+      width: 50%;
+      vertical-align: top;
+    }
+
+    .competencies-list li::before {
+      content: "▪  ";
+      color: #1e3a5f;
+      font-size: 8pt;
+    }
+
+    /* ── EXPERIENCE ──────────────────────────────────── */
+    .job {
+      margin-bottom: 13px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid #e8ecf2;
+    }
+
+    .job:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .job-header {
+      margin-bottom: 5px;
+    }
+
+    .job-title {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.2;
+    }
+
+    .job-company-line {
+      margin-top: 2px;
+      font-size: 9.5pt;
+      color: #4a5568;
+      line-height: 1.4;
+    }
+
+    .job-company {
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+
+    .job-bullets {
+      padding-left: 16px;
+      list-style: disc;
+      margin-top: 5px;
+    }
+
+    .job-bullets li {
+      font-size: 10pt;
+      margin-bottom: 3.5px;
+      line-height: 1.45;
+      color: #2d2d2d;
+    }
+
+    .job-bullets li strong {
+      color: #1a1a1a;
+    }
+
+    /* ── EDUCATION ───────────────────────────────────── */
+    .edu-item {
+      margin-bottom: 6px;
+    }
+
+    .edu-degree {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .edu-institution {
+      font-size: 9.5pt;
+      color: #4a5568;
+    }
+
+    /* ── CERTIFICATIONS ──────────────────────────────── */
+    .cert-list {
+      list-style: none;
+      padding: 0;
+      font-size: 0;
+    }
+
+    .cert-list li {
+      display: inline-block;
+      font-size: 10pt;
+      color: #2d2d2d;
+      padding: 2px 0;
+      width: 50%;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    .cert-list li::before {
+      content: "▪  ";
+      color: #1e3a5f;
+      font-size: 8pt;
+    }
+
+    /* ── TECHNICAL SKILLS ────────────────────────────── */
+    .skills-row {
+      margin-bottom: 4px;
+      font-size: 10pt;
+      color: #2d2d2d;
+      line-height: 1.5;
+    }
+
+    .skills-label {
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    /* ── PRINT / PDF ─────────────────────────────────── */
+    @media print {
+      body {
+        padding: 12mm 16mm;
+        max-width: none;
+      }
+      .no-break {
+        page-break-inside: avoid;
+      }
+      a {
+        color: #2c5282 !important;
+        text-decoration: none !important;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 14mm 18mm;
+    } max-width: none; margin: 0; box-shadow: none; }
+      </style>
+      <div class="cv-doc" style="padding: 14mm 18mm;">
+        <!-- HEADER -->
+  <div class="cv-header">
+    <div class="cv-name">Abdur Rab</div>
+    <div class="cv-title">Senior Contracts &amp; Procurement Professional &nbsp;·&nbsp; Civil Infrastructure &amp; Construction</div>
+    <div class="cv-contact">
+      +61 452 653 571
+      <span class="sep">|</span>
+      <a href="mailto:rab007@gmail.com">rab007@gmail.com</a>
+      <span class="sep">|</span>
+      Adelaide, South Australia
+      <span class="sep">|</span>
+      <a href="https://au.linkedin.com/in/rab-abdur">linkedin.com/in/rab-abdur</a>
+      <span class="sep">|</span>
+      <span class="visa-badge">Permanent Resident, Full Working Rights</span>
+    </div>
+  </div>
+
+  <!-- PROFESSIONAL SUMMARY -->
+  <div class="section">
+    <div class="section-title">Professional Summary</div>
+    <p class="summary-text">
+      Senior contracts and procurement professional with 13 years of experience across civil infrastructure, EPCM and construction in Australia and the Middle East. Seven years as Head of Procurement &amp; Contracts at Shapoorji Pallonji Group, one of the world's largest engineering and construction groups, leading a team of six and managing a subcontract portfolio exceeding USD 180 million across concurrent infrastructure programmes. Delivered a 20% improvement in vendor compliance through SAP governance reforms. Strong track record in head contract administration, subcontract formation, variations, EOT claims, payment certification and commercial close-out. Based in Adelaide, open to Perth and FIFO. Australian Permanent Resident, full working rights.
+    </p>
+  </div>
+
+  <!-- CORE COMPETENCIES -->
+  <div class="section">
+    <div class="section-title">Core Competencies</div>
+    <ul class="competencies-list">
+      <li>Head Contract Compliance &amp; Administration</li>
+      <li>Variations, Claims &amp; EOT Management</li>
+      <li>Subcontract Formation &amp; Scope Preparation</li>
+      <li>Progress Claims &amp; Payment Certification</li>
+      <li>Procurement Strategy &amp; Category Management</li>
+      <li>Vendor Performance &amp; KPI Reporting</li>
+      <li>Tender Evaluation: Technical &amp; Commercial</li>
+      <li>Risk Management &amp; Compliance Registers</li>
+      <li>Commercial Negotiation &amp; Contract Formation</li>
+      <li>Cost Control &amp; Cash Flow Forecasting</li>
+      <li>FIDIC &amp; NEC Contract Frameworks</li>
+      <li>ERP Governance: SAP, Oracle Cloud, Aconex</li>
+      <li>Delay Records &amp; Early Warning Notices</li>
+      <li>Project Close-Out &amp; Defects Administration</li>
+    </ul>
+  </div>
+
+  <!-- CERTIFICATIONS -->
+  <div class="section">
+    <div class="section-title">Certifications &amp; Professional Memberships</div>
+    <ul class="cert-list">
+      <li>Project Management Professional (PMP), PMI</li>
+      <li>Chartered Institute of Procurement &amp; Supply (CIPS), In Progress</li>
+      <li>Certified International Procurement Manager (CIPM)</li>
+      <li>Procurement Certificate, ASCM</li>
+      <li>Professional Engineer (PE), Engineers Australia</li>
+    </ul>
+  </div>
+
+  <!-- PROFESSIONAL EXPERIENCE -->
+  <div class="section">
+    <div class="section-title">Professional Experience</div>
+
+    <div class="job no-break">
+      <div class="job-header">
+        <div class="job-title">Contracts Administrator</div>
+        <div class="job-company-line">
+          <span class="job-company">Osmoflo Water Management</span>
+          &nbsp;·&nbsp; Adelaide, SA &nbsp;·&nbsp; June 2025 – Present
+        </div>
+        <div class="job-company-line">Water Infrastructure &amp; Desalination</div>
+      </div>
+      <ul class="job-bullets">
+        <li>Administering contracts on the Belmont Desalination Plant, a live water infrastructure project, covering full compliance from mobilisation through delivery milestones against head contract obligations.</li>
+        <li>Managing variations, milestone certifications and technical deliverables; preparing early warning notices and formal contractual correspondence in accordance with contract conditions.</li>
+        <li>Monitoring vendor performance via Aconex and SharePoint dashboards, tracking KPI obligations across multiple concurrent suppliers and reporting to programme steering committee.</li>
+        <li>Maintaining audit-ready contract documentation across Aconex, SharePoint and M-Files; coordinating dispute resolution and risk mitigation with project managers and external consultants.</li>
+      </ul>
+    </div>
+
+    <div class="job no-break">
+      <div class="job-header">
+        <div class="job-title">Contracts Administrator</div>
+        <div class="job-company-line">
+          <span class="job-company">BusTech Group</span>
+          &nbsp;·&nbsp; Adelaide, SA &nbsp;·&nbsp; March 2024 – May 2025
+        </div>
+        <div class="job-company-line">Transport Manufacturing. Government Clients: DIT South Australia, Transport Canberra, Transport NSW</div>
+      </div>
+      <ul class="job-bullets">
+        <li>Managed procurement and supplier contracts across a government-facing transport manufacturing operation, administering the full contract lifecycle using ECI M1 ERP.</li>
+        <li>Designed and implemented a KPI-based vendor evaluation framework that <strong>reduced average procurement lead times by 15%</strong> through targeted supplier performance management.</li>
+        <li>Negotiated commercial pricing and performance terms with key suppliers; validated invoices against purchase orders and SLAs to protect cost and delivery schedule compliance.</li>
+        <li>Prepared comprehensive bid comparisons incorporating technical and commercial evaluation criteria; maintained risk logs and compliance registers across active contracts.</li>
+      </ul>
+    </div>
+
+    <div class="job no-break">
+      <div class="job-header">
+        <div class="job-title">Procurement &amp; Contracts Manager</div>
+        <div class="job-company-line">
+          <span class="job-company">Craft Group</span>
+          &nbsp;·&nbsp; Riyadh, Saudi Arabia &nbsp;·&nbsp; December 2022 – January 2024
+        </div>
+        <div class="job-company-line">Commercial &amp; Civil Infrastructure Construction</div>
+      </div>
+      <ul class="job-bullets">
+        <li>Directed end-to-end procurement and contract operations for a construction group delivering malls, commercial buildings and civil infrastructure; <strong>total contract portfolio exceeding USD 50 million</strong>.</li>
+        <li>Established full-lifecycle contract management frameworks covering subcontract formation, scope documentation, variations, payment certifications and project close-out.</li>
+        <li>Governed Oracle Cloud ERP procurement processes across multiple concurrent projects, driving commercial compliance and robust risk controls at programme level.</li>
+        <li>Led negotiations with subcontractors and suppliers on scope, pricing and programme; protected head contract entitlements and managed commercial exposure across active works.</li>
+      </ul>
+    </div>
+
+    <div class="job no-break">
+      <div class="job-header">
+        <div class="job-title">Head of Procurement &amp; Contracts</div>
+        <div class="job-company-line">
+          <span class="job-company">Shapoorji Pallonji Group</span>
+          &nbsp;·&nbsp; Riyadh, Saudi Arabia &nbsp;·&nbsp; January 2016 – December 2022 <em>(7 years)</em>
+        </div>
+        <div class="job-company-line">Global Engineering, Construction &amp; Infrastructure. USD 3B+ Group (Infrastructure · Energy · Water · Real Estate)</div>
+      </div>
+      <ul class="job-bullets">
+        <li>Led a team of six procurement and contracts professionals across concurrent infrastructure programmes in Saudi Arabia; accountable for a <strong>subcontract portfolio exceeding USD 180 million</strong> spanning civil, structural, mechanical, electrical and ELV scopes.</li>
+        <li>Managed 50+ active subcontract packages simultaneously at peak delivery: scope preparation, bid analysis, commercial negotiation, award, KPI performance management and final account settlement.</li>
+        <li>Administered variations, EOT claims and payment certification processes across head contracts; ensured entitlements were documented, escalated and enforced with clients and subcontractors.</li>
+        <li>Governed SAP procurement platform across projects and regions; <strong>implemented controls that improved vendor delivery compliance by 20%</strong> and cut average procurement cycle times.</li>
+        <li>Drove strategic sourcing across key categories including civil earthworks, structural steel, mechanical plant and ELV systems; built and maintained a pre-qualified vendor panel of 80+ suppliers.</li>
+        <li>Delivered executive-level commercial reporting: vendor performance dashboards, risk registers and procurement spend analysis for programme governance and board-level review.</li>
+      </ul>
+    </div>
+
+    <div class="job no-break">
+      <div class="job-header">
+        <div class="job-title">Mechanical Engineer &amp; Site Contracts Coordinator</div>
+        <div class="job-company-line">
+          <span class="job-company">Arabian Construction Company</span>
+          &nbsp;·&nbsp; Makkah, Saudi Arabia &nbsp;·&nbsp; October 2012 – January 2016
+        </div>
+        <div class="job-company-line">Landmark Construction. High-Rise, Hotels &amp; Hospitals</div>
+      </div>
+      <ul class="job-bullets">
+        <li>Supervised vendor quality, technical documentation and systems integration on large-scale construction projects including high-rise towers, luxury hotels and hospitals.</li>
+        <li>Coordinated subcontractor activities across mechanical disciplines; managed QA/QC processes and non-conformance reports in compliance with project specifications and contractual requirements.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- TECHNICAL SKILLS -->
+  <div class="section">
+    <div class="section-title">Technical Skills</div>
+    <div class="skills-row">
+      <span class="skills-label">ERP &amp; Procurement Systems:</span>
+      SAP, Oracle Cloud, Ariba, Microsoft Dynamics 365, ECI M1
+    </div>
+    <div class="skills-row">
+      <span class="skills-label">Contract &amp; Document Management:</span>
+      Aconex, SharePoint, M-Files
+    </div>
+    <div class="skills-row">
+      <span class="skills-label">Productivity &amp; Reporting:</span>
+      Microsoft Office 365 (advanced Excel, Word, PowerPoint), project financial reporting
+    </div>
+  </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COVER LETTER DIVIDER -->
+  <div class="doc-divider">Section 3 &nbsp;·&nbsp; Your Cover Letter</div>
+
+  <div class="section" style="background:#f0f4f8; padding: 20px 56px 10px; border-bottom: none;">
+    <p style="font-size:10pt; color:#4a5568; font-style:italic;">
+      The opening paragraph below is generated fresh for each application — specific to that role
+      and company. The rest of the letter stays the same. The example shown here uses placeholder
+      text for the company and role.
+    </p>
+  </div>
+
+  <div class="doc-embed" style="padding-top: 12px;">
+    <div class="doc-embed-inner">
+      <style>
+        .cl-doc { *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 10.5pt;
+    }
+
+    body {
+      font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.55;
+      color: #1a1a1a;
+      background: #ffffff;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 18mm 20mm 18mm 20mm;
+    }
+
+    /* ── HEADER ──────────────────────────────────────── */
+    .cl-header {
+      border-left: 4px solid #1e3a5f;
+      padding-left: 14px;
+      margin-bottom: 24px;
+    }
+
+    .cl-name {
+      font-size: 22pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .cl-title {
+      font-size: 9.5pt;
+      font-weight: 600;
+      color: #2c5282;
+      margin-top: 4px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .cl-contact {
+      margin-top: 8px;
+      font-size: 9.5pt;
+      color: #4a5568;
+      line-height: 1.8;
+    }
+
+    .cl-contact a {
+      color: #2c5282;
+      text-decoration: none;
+    }
+
+    .cl-contact .sep {
+      margin: 0 8px;
+      color: #c8d4e3;
+    }
+
+    /* ── DATE + ADDRESSEE ────────────────────────────── */
+    .cl-meta {
+      margin-bottom: 22px;
+      font-size: 10pt;
+      color: #2d2d2d;
+      line-height: 1.7;
+    }
+
+    .cl-date {
+      color: #4a5568;
+      margin-bottom: 14px;
+    }
+
+    .cl-addressee {
+      font-size: 10pt;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+
+    .cl-addressee strong {
+      color: #1e3a5f;
+    }
+
+    /* ── SUBJECT LINE ────────────────────────────────── */
+    .cl-subject {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 20px;
+      padding-bottom: 6px;
+      border-bottom: 1.5px solid #1e3a5f;
+    }
+
+    /* ── BODY ────────────────────────────────────────── */
+    .cl-body p {
+      font-size: 10.5pt;
+      color: #2d2d2d;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .cl-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ── SIGN-OFF ─────────────────────────────────────── */
+    .cl-signoff {
+      margin-top: 28px;
+      font-size: 10.5pt;
+      color: #2d2d2d;
+      line-height: 1.7;
+    }
+
+    .cl-signoff .name {
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-top: 6px;
+      font-size: 11pt;
+    }
+
+    /* ── PRINT ────────────────────────────────────────── */
+    @media print {
+      body {
+        padding: 14mm 18mm;
+        max-width: none;
+      }
+      a {
+        color: #2c5282 !important;
+        text-decoration: none !important;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 18mm 20mm;
+    } max-width: none; margin: 0; box-shadow: none; }
+      </style>
+      <div class="cl-doc" style="padding: 18mm 20mm;">
+        <!-- HEADER -->
+  <div class="cl-header">
+    <div class="cl-name">Abdur Rab</div>
+    <div class="cl-title">Senior Contracts &amp; Procurement Professional &nbsp;·&nbsp; Civil Infrastructure &amp; Construction</div>
+    <div class="cl-contact">
+      +61 452 653 571
+      <span class="sep">|</span>
+      <a href="mailto:rab007@gmail.com">rab007@gmail.com</a>
+      <span class="sep">|</span>
+      Adelaide, South Australia
+      <span class="sep">|</span>
+      <a href="https://au.linkedin.com/in/rab-abdur">linkedin.com/in/rab-abdur</a>
+    </div>
+  </div>
+
+  <!-- DATE + ADDRESSEE -->
+  <!-- TAILOR: replace date, hiring manager name, company, role title below -->
+  <div class="cl-meta">
+    <div class="cl-date">15 March 2026</div>
+    <div class="cl-addressee">
+      Hiring Manager<br>
+      <strong>[Company Name]</strong>
+    </div>
+  </div>
+
+  <!-- SUBJECT LINE -->
+  <!-- TAILOR: replace role title -->
+  <div class="cl-subject">Re: [Role Title]</div>
+
+  <!-- BODY -->
+  <div class="cl-body">
+
+    <!-- OPENING PARAGRAPH — Mistral personalises this per application -->
+    <!-- Inject: company name, role title, one specific reason this role is a fit -->
+    <p>The Belmont Desalination Plant has given me direct experience in the kind of contract administration environment this role requires — live infrastructure delivery, NEC conditions, and the commercial discipline that keeps a project on programme. Before that I managed a USD&nbsp;180M+ subcontract portfolio at Shapoorji Pallonji across concurrent EPCM programmes in Saudi Arabia. This is the work I know.</p>
+
+    <!-- FIXED: experience paragraph — do not change -->
+    <p>
+      Over the past 13 years I have worked across civil infrastructure, EPCM and construction in
+      Australia and the Middle East, most recently as Contracts Administrator on the Belmont
+      Desalination Plant with Osmoflo Water Management. Before relocating to Australia I spent seven
+      years as Head of Procurement &amp; Contracts at Shapoorji Pallonji Group in Riyadh, leading a
+      team of six and managing a subcontract portfolio of over USD 180 million across concurrent
+      infrastructure programmes. That role covered the full commercial cycle: subcontract formation,
+      scope preparation, bid analysis, variations and EOT claims, payment certification and
+      programme close-out.
+    </p>
+
+    <!-- FIXED: what I bring paragraph — do not change -->
+    <p>
+      What I bring to a senior contracts or procurement role is hands-on experience with the
+      commercial mechanics that determine project margin: tight subcontract scope, early warning
+      disciplines, defensible variations records and vendor accountability frameworks that hold up
+      under audit. I have worked under FIDIC and NEC conditions and governed procurement
+      through SAP, Oracle Cloud and Aconex. I understand that these systems are only as useful
+      as the governance behind them.
+    </p>
+
+    <!-- FIXED: closing paragraph — do not change -->
+    <p>
+      I am an Australian Permanent Resident with full working rights and am available on 30 days
+      notice. I would welcome the opportunity to discuss how my background fits your requirements.
+    </p>
+
+  </div>
+
+  <!-- SIGN-OFF -->
+  <div class="cl-signoff">
+    Regards,
+    <div class="name">Abdur Rab</div>
+  </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .page -->
+</body>
+</html>
